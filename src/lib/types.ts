@@ -110,3 +110,22 @@ export interface Artifact {
   generation_status: 'pending' | 'generating' | 'complete' | 'failed'
   generation_error: string | null
 }
+
+// Dashboard row shape returned by /api/admin/artifacts
+export interface ArtifactRow {
+  id: string
+  output_type: OutputType
+  status: ArtifactStatus
+  slug: string | null
+  generation_status: 'pending' | 'generating' | 'complete' | 'failed'
+  created_at: string
+  updated_at: string
+  published_at: string | null
+  deleted_at: string | null
+  researchers: {
+    full_name: string | null
+    email: string
+    institution: string | null
+    department_or_lab: string | null
+  } | null
+}
