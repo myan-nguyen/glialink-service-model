@@ -7,6 +7,7 @@ import {
 import type {
   OutputType, CareerStage, AiComfort, PrimaryGoal, TargetAudience
 } from '@/lib/types'
+import Link from 'next/link'
 
 // ─── Field helpers ──────────────────────────────────────────────────────────
 
@@ -87,7 +88,16 @@ function StepIdentity({
           <p className="text-xs text-neutral-500 mt-1">Looking up existing record…</p>
         )}
         {lookupError && (
-          <p className="text-xs text-amber-400 mt-1">{lookupError}</p>
+          <div className="text-xs text-amber-400 mt-1 space-y-1">
+            <p>{lookupError}</p>
+            <Link
+              href={`/admin/intake/${encodeURIComponent(values.email)}`}
+              className="text-neutral-400 hover:text-white underline
+                        underline-offset-2 transition-colors block"
+            >
+              Go to existing researcher record →
+            </Link>
+          </div>
         )}
       </Field>
 

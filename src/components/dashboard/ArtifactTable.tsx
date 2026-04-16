@@ -103,7 +103,14 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
             return (
               <tr
                 key={a.id}
-                onClick={() => router.push(`/admin/artifacts/${a.id}/edit`)}
+                onClick={() => {
+                  const email = a.researchers?.email
+                  if (email) {
+                    router.push(`/admin/intake/${encodeURIComponent(email)}`)
+                  } else {
+                    router.push(`/admin/artifacts/${a.id}/edit`)
+                  }
+                }}
                 className="hover:bg-neutral-800/30 cursor-pointer transition-colors group"
               >
                 <td className="py-3 px-3">
