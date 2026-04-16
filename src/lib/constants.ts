@@ -29,3 +29,58 @@ export const AI_COMFORT_OPTIONS: AiComfort[] = [
 ]
 
 export const CTA_EMAIL = process.env.CTA_EMAIL ?? 'myan_nguyen@brown.edu'
+
+export const SECTION_LABELS: Record<string, string> = {
+  // Project page
+  header: 'Header',
+  summary: 'Summary',
+  why_this_matters: 'Why This Matters',
+  research_focus: 'Research Focus',
+  methods_approach: 'Methods & Approach',
+  key_findings: 'Key Findings',
+  research_tags: 'Research Tags',
+  current_stage: 'Current Stage',
+  figures_evidence: 'Figures & Evidence',
+  asks: 'Asks',
+  what_we_offer: 'What We Offer',
+  potential_impact: 'Potential Impact',
+  researcher_perspective: 'Researcher Perspective',
+  cta: 'Call to Action',
+  constraints: 'Constraints',
+  // Researcher profile
+  identity: 'Identity',
+  research_themes: 'Research Themes',
+  current_focus: 'Current Focus',
+  expertise: 'Expertise',
+  selected_projects: 'Selected Projects',
+  selected_outputs: 'Selected Outputs',
+  who_they_want_to_reach: 'Who They Want to Reach',
+  what_they_offer: 'What They Offer',
+  human_layer: 'Human Layer',
+  discoverability: 'Discoverability',
+  // Lab profile
+  research_areas: 'Research Areas',
+  current_directions: 'Current Directions',
+  flagship_projects: 'Flagship Projects',
+  capabilities: 'Capabilities',
+  team_fit: 'Team Fit',
+  opportunities: 'Opportunities',
+  what_the_lab_offers: 'What the Lab Offers',
+  proof_visibility: 'Proof & Visibility',
+}
+
+export const CONFIDENCE_COLORS = {
+  high: 'text-green-400 bg-green-950/40 border-green-800',
+  medium: 'text-amber-400 bg-amber-950/40 border-amber-800',
+  low: 'text-red-400 bg-red-950/40 border-red-800',
+}
+
+// Fields that render as single-line inputs (short text)
+export const SHORT_TEXT_FIELDS = new Set([
+  'researcher_name', 'researcher_role', 'institution', 'department_or_lab',
+  'project_title', 'project_type_label', 'current_stage', 'call_to_action',
+  'ask_title', 'lab_name', 'pi_name', 'pi_email', 'lab_lead_role',
+  'field_and_subfield', 'role_career_stage', 'recruiting_status',
+  'one_sentence_summary', 'one_sentence_lab_summary', 'mission_statement',
+  'lab_link', 'ai_comfort',
+])
