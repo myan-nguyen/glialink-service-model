@@ -7,6 +7,8 @@ import { PagePreview } from './PagePreview'
 import { SectionPanel } from './SectionPanel'
 import { CustomSectionAdder } from './CustomSectionAdder'
 import type { Artifact, Researcher } from '@/lib/types'
+import { useUnsavedWarning } from './useUnsavedWarning'
+import Link from 'next/link'
 
 interface Props {
   artifact: Artifact & { researchers: Researcher }
@@ -23,6 +25,9 @@ export function DraftEditor({ artifact }: Props) {
     setIsDirty,
     updateSection,
   } = useEditorStore()
+
+  const isDirty = useEditorStore((state) => state.isDirty)
+  useUnsavedWarning(isDirty)
 
   // Initialise store from server-fetched artifact
   useEffect(() => {
@@ -121,16 +126,26 @@ export function DraftEditor({ artifact }: Props) {
 
   return (
     <div className="flex flex-col h-screen">
-      {/* Header */}
+            {/* Header */}
       <div className="flex-shrink-0 border-b border-neutral-800 px-6 py-3
                       flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-white">
-            {researcher?.full_name ?? artifact.researcher_email}
-          </p>
-          <p className="text-xs text-neutral-500 capitalize mt-0.5">
-            {artifact.output_type.replace(/_/g, ' ')} · {artifact.status}
-          </p>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/admin"
+            className="text-neutral-600 hover:text-neutral-300 transition-colors
+                      text-sm flex items-center gap-1"
+          >
+            ← Dashboard
+          </Link>
+          <div className="w-px h-4 bg-neutral-800" />
+          <div>
+            <p className="text-sm font-medium text-white">
+              {researcher?.full_name ?? artifact.researcher_email}
+            </p>
+            <p className="text-xs text-neutral-500 capitalize mt-0.5">
+              {artifact.output_type.replace(/_/g, ' ')} · {artifact.status}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           {artifact.slug && (
