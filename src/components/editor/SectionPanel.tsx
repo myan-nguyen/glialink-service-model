@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { useEditorStore } from './useEditorStore'
 import { ContentFieldEditor } from './ContentFieldEditor'
 import { SECTION_LABELS, CONFIDENCE_COLORS } from '@/lib/constants'
-import { SECTION_ORDER } from '@/lib/generation'
+import { SECTION_ORDER } from '@/lib/constants'
+import { useShallow } from 'zustand/react/shallow'
 
 interface Props {
   artifactId: string
@@ -23,7 +24,6 @@ export function SectionPanel({
   onPublish,
 }: Props) {
   const {
-    sections,
     selectedSection,
     selectSection,
     updateSectionContent,
@@ -31,6 +31,8 @@ export function SectionPanel({
     isSaving,
     isPublishing,
   } = useEditorStore()
+
+  const sections = useEditorStore(useShallow((state) => state.sections))
 
   const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null)
   const [evidenceOpen, setEvidenceOpen] = useState(false)

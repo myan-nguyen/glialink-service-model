@@ -1,7 +1,8 @@
 'use client'
 import { useEditorStore } from './useEditorStore'
 import { SECTION_LABELS } from '@/lib/constants'
-import { SECTION_ORDER } from '@/lib/generation'
+import { SECTION_ORDER } from '@/lib/constants'
+import { useShallow } from 'zustand/react/shallow'
 
 function renderValue(value: unknown): React.ReactNode {
   if (value === null || value === undefined || value === '') {
@@ -44,8 +45,10 @@ function renderValue(value: unknown): React.ReactNode {
 }
 
 export function PagePreview({ outputType }: { outputType: string }) {
-  const { sections, customSections, selectedSection, selectSection, generationStatus } =
+  const { customSections, selectedSection, selectSection, generationStatus } =
     useEditorStore()
+  
+    const sections = useEditorStore(useShallow((state) => state.sections))
 
   if (generationStatus === 'pending' || generationStatus === 'generating') {
     return (

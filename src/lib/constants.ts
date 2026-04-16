@@ -84,3 +84,22 @@ export const SHORT_TEXT_FIELDS = new Set([
   'one_sentence_summary', 'one_sentence_lab_summary', 'mission_statement',
   'lab_link', 'ai_comfort',
 ])
+
+export const SECTION_ORDER: Record<string, string[]> = {
+  project_page: [
+    'header', 'summary', 'why_this_matters', 'research_focus',
+    'methods_approach', 'key_findings', 'research_tags', 'current_stage',
+    'figures_evidence', 'asks', 'what_we_offer', 'potential_impact',
+    'researcher_perspective', 'cta', 'constraints',
+  ],
+  researcher_profile: [
+    'header', 'identity', 'research_themes', 'current_focus', 'expertise',
+    'selected_projects', 'selected_outputs', 'who_they_want_to_reach',
+    'asks', 'what_they_offer', 'human_layer', 'discoverability', 'constraints',
+  ],
+  lab_profile: [
+    'header', 'summary', 'research_areas', 'current_directions',
+    'flagship_projects', 'capabilities', 'team_fit', 'opportunities',
+    'asks', 'what_the_lab_offers', 'proof_visibility', 'human_layer', 'constraints',
+  ],
+}
