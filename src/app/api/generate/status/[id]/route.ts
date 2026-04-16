@@ -3,14 +3,15 @@ import { createClient } from '@/lib/supabase/server'
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params
   const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('artifacts')
     .select('generation_status, generation_error, sections, page_readiness')
-    .eq('id', params.id)
+    .eq('id', id)
     .single()
 
   if (error || !data) {
@@ -20,7 +21,6 @@ export async function GET(
   return NextResponse.json({
     generation_status: data.generation_status,
     generation_error: data.generation_error,
-    // Only include sections once complete — avoids sending partial data
     sections: data.generation_status === 'complete' ? data.sections : null,
     page_readiness: data.generation_status === 'complete' ? data.page_readiness : null,
   })
