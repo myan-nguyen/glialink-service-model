@@ -107,4 +107,6 @@ export interface Artifact {
   created_at: string
   updated_at: string
   published_at: string | null
+  generation_status: 'pending' | 'generating' | 'complete' | 'failed'
+  generation_error: string | null
 }
