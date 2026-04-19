@@ -1,53 +1,22 @@
 import {
+  FullBleed,
+  WideSection,
+  Tile,
   SectionLabel,
+  SectionTitle,
   Prose,
+  Pullquote,
   TagList,
   BulletList,
-  Pullquote,
-  InlineMeta,
-  StatusPill,
-} from './primitives'
+  Quote,
+  AskCard,
+} from './shared'
 
-function LabCard({
-  label,
-  title,
-  children,
-  accent = false,
-}: {
-  label?: string
-  title?: string
-  children: React.ReactNode
-  accent?: boolean
-}) {
-  return (
-    <section
-      className={`border rounded-2xl p-6 sm:p-8 ${
-        accent
-          ? 'bg-brand-mist/60 border-brand-soft/30'
-          : 'bg-canvas-soft border-canvas-border'
-      }`}
-    >
-      {label && (
-        <p className="text-[11px] font-sans font-semibold tracking-[0.18em]
-                      uppercase text-brand mb-2">
-          {label}
-        </p>
-      )}
-      {title && (
-        <h2 className="font-display text-xl sm:text-2xl font-bold text-ink
-                       leading-tight mb-5">
-          {title}
-        </h2>
-      )}
-      {children}
-    </section>
-  )
-}
+// ─── Full-bleed header ──────────────────────────────────────────────────────
 
-export function LabHero({ content }: { content: Record<string, string> }) {
-  const initials = (content.lab_name || '')
+export function LabHeader({ content }: { content: Record<string, string> }) {
+  const initials = (content.lab_name ?? 'L')
     .split(' ')
-    .filter((w) => !['lab', 'laboratory', 'the', 'of', 'for'].includes(w.toLowerCase()))
     .map((s) => s[0])
     .filter(Boolean)
     .slice(0, 2)
@@ -55,62 +24,68 @@ export function LabHero({ content }: { content: Record<string, string> }) {
     .toUpperCase()
 
   return (
-    <div className="py-8 sm:py-12 animate-fade-up">
-      <div className="bg-canvas-soft border border-canvas-border rounded-2xl
-                      p-6 sm:p-8">
-        <div className="flex flex-col sm:flex-row gap-5 sm:gap-6">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gradient-to-br
-                          from-brand to-brand-deep flex items-center justify-center
-                          shrink-0 shadow-sm">
-            <span className="text-2xl sm:text-3xl font-display font-bold text-white">
-              {initials || '◆'}
-            </span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[11px] font-sans font-semibold tracking-[0.18em]
-                          uppercase text-brand mb-2">
-              Lab profile
+    <FullBleed sectionKey="header" className="pt-10 sm:pt-14 pb-8 bg-brand-ghost">
+      <p className="text-[11px] font-display font-semibold tracking-[0.18em]
+                    uppercase text-brand mb-5">
+        Lab Profile
+      </p>
+      <div className="flex items-start gap-5 sm:gap-8">
+        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-white
+                        border-2 border-brand-pale flex items-center justify-center
+                        shrink-0">
+          <span className="font-display text-3xl sm:text-4xl font-bold text-brand">
+            {initials}
+          </span>
+        </div>
+        <div className="min-w-0 flex-1 pt-1">
+          <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
+                         leading-[1.05] tracking-tight">
+            {content.lab_name || 'Lab'}
+          </h1>
+          {content.pi_name && (
+            <p className="mt-3 text-base sm:text-lg text-ink-light font-serif">
+              <span className="font-semibold">PI:</span> {content.pi_name}
+              {content.lab_lead_role && (
+                <span className="text-ink-muted"> · {content.lab_lead_role}</span>
+              )}
             </p>
-            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl
-                           font-bold text-ink leading-tight mb-2 tracking-tight">
-              {content.lab_name || 'Lab'}
-            </h1>
-            <InlineMeta
-              items={[
-                content.pi_name ? `PI: ${content.pi_name}` : null,
-                content.lab_lead_role,
-                content.institution,
-                content.department,
-              ]}
-            />
-            {content.field_and_subfield && (
-              <p className="mt-3 inline-block text-xs font-sans font-semibold
-                            tracking-wide text-brand-deep bg-brand-mist
-                            px-3 py-1 rounded-full">
-                {content.field_and_subfield}
-              </p>
-            )}
+          )}
+          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1
+                          text-sm text-ink-muted font-serif">
+            {content.institution && <span>{content.institution}</span>}
+            {content.department && <span className="text-ink-subtle">·</span>}
+            {content.department && <span>{content.department}</span>}
           </div>
+          {content.field_and_subfield && (
+            <p className="mt-4 inline-block px-3 py-1 text-xs font-medium
+                          bg-white text-brand-dark rounded-full border border-brand-pale">
+              {content.field_and_subfield}
+            </p>
+          )}
         </div>
       </div>
-    </div>
+    </FullBleed>
   )
 }
 
+// ─── Wide sections ──────────────────────────────────────────────────────────
+
 export function LabSummary({ content }: { content: Record<string, string> }) {
-  const hasAny =
-    content.one_sentence_lab_summary ||
-    content.lab_mission_statement ||
-    content.why_the_lab_exists
-  if (!hasAny) return null
+  if (
+    !content.one_sentence_lab_summary &&
+    !content.lab_mission_statement &&
+    !content.why_the_lab_exists
+  )
+    return null
   return (
-    <LabCard label="About the lab">
-      <div className="space-y-4 max-w-[680px]">
-        {content.one_sentence_lab_summary && (
-          <p className="font-display text-lg sm:text-xl text-ink leading-snug">
-            {content.one_sentence_lab_summary}
-          </p>
-        )}
+    <WideSection sectionKey="summary">
+      <SectionLabel>About the Lab</SectionLabel>
+      {content.one_sentence_lab_summary && (
+        <div className="mb-5 max-w-3xl">
+          <Pullquote>{content.one_sentence_lab_summary}</Pullquote>
+        </div>
+      )}
+      <div className="space-y-3 max-w-3xl">
         {content.lab_mission_statement && (
           <Prose>{content.lab_mission_statement}</Prose>
         )}
@@ -118,35 +93,7 @@ export function LabSummary({ content }: { content: Record<string, string> }) {
           <Prose className="text-ink-muted">{content.why_the_lab_exists}</Prose>
         )}
       </div>
-    </LabCard>
-  )
-}
-
-export function ResearchAreas({
-  content,
-}: {
-  content: { core_research_areas?: string[] }
-}) {
-  if (!content.core_research_areas?.length) return null
-  return (
-    <LabCard label="Research areas" title="What we study">
-      <TagList tags={content.core_research_areas} />
-    </LabCard>
-  )
-}
-
-export function CurrentDirections({
-  content,
-}: {
-  content: { active_directions?: string[] }
-}) {
-  if (!content.active_directions?.length) return null
-  return (
-    <LabCard label="Active work" title="Current directions">
-      <div className="max-w-[680px]">
-        <BulletList items={content.active_directions} />
-      </div>
-    </LabCard>
+    </WideSection>
   )
 }
 
@@ -163,110 +110,79 @@ export function FlagshipProjects({
 }) {
   if (!content.projects?.length) return null
   return (
-    <LabCard label="Projects" title="Flagship work">
-      <div className="divide-y divide-canvas-border">
+    <WideSection sectionKey="flagship_projects">
+      <SectionLabel>Flagship Projects</SectionLabel>
+      <SectionTitle>Ongoing research</SectionTitle>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {content.projects.map((p, i) => (
           <div
             key={i}
-            className={`${i === 0 ? 'pb-5' : 'py-5'} ${i === content.projects!.length - 1 ? 'pb-0' : ''} space-y-1.5`}
+            className="border border-surface-border rounded-xl p-5
+                       hover:border-brand-light transition-colors"
           >
-            <h3 className="font-display text-base font-semibold text-ink">
-              {p.project_title}
-            </h3>
-            {p.short_description && (
-              <p className="text-sm text-ink-light leading-relaxed">
-                {p.short_description}
-              </p>
-            )}
-            {p.current_status && (
-              <p className="text-xs text-brand font-sans font-medium">
-                {p.current_status}
-              </p>
-            )}
+            <div className="flex items-start justify-between gap-3 mb-2">
+              <h3 className="font-display font-semibold text-ink text-base
+                             leading-snug">
+                {p.project_title}
+              </h3>
+              {p.current_status && (
+                <span className="shrink-0 px-2 py-0.5 text-[11px] bg-brand-pale
+                                 text-brand-dark rounded-full font-medium whitespace-nowrap">
+                  {p.current_status}
+                </span>
+              )}
+            </div>
+            <p className="text-sm text-ink-light leading-relaxed">
+              {p.short_description}
+            </p>
           </div>
         ))}
       </div>
-    </LabCard>
-  )
-}
-
-export function Capabilities({
-  content,
-}: {
-  content: {
-    methods_capabilities?: string[]
-    datasets_tools_infrastructure?: string[]
-  }
-}) {
-  const hasMethods = content.methods_capabilities?.length
-  const hasInfra = content.datasets_tools_infrastructure?.length
-  if (!hasMethods && !hasInfra) return null
-
-  return (
-    <LabCard label="Capabilities" title="Methods & infrastructure">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {hasMethods && (
-          <div>
-            <p className="text-xs font-sans font-semibold tracking-wide
-                          uppercase text-ink-muted mb-3">
-              Methods
-            </p>
-            <BulletList items={content.methods_capabilities!} />
-          </div>
-        )}
-        {hasInfra && (
-          <div>
-            <p className="text-xs font-sans font-semibold tracking-wide
-                          uppercase text-ink-muted mb-3">
-              Infrastructure
-            </p>
-            <BulletList items={content.datasets_tools_infrastructure!} />
-          </div>
-        )}
-      </div>
-    </LabCard>
+    </WideSection>
   )
 }
 
 export function TeamFit({ content }: { content: Record<string, string> }) {
-  const hasAny =
-    content.who_belongs_here ||
-    content.lab_culture ||
-    content.mentorship_environment
-  if (!hasAny) return null
-
+  if (
+    !content.who_belongs_here &&
+    !content.lab_culture &&
+    !content.mentorship_environment
+  )
+    return null
   return (
-    <LabCard label="Team & culture" title="Who belongs here">
-      <div className="space-y-6 max-w-[680px]">
+    <WideSection sectionKey="team_fit">
+      <SectionLabel>Team & Culture</SectionLabel>
+      <SectionTitle>Who belongs in this lab</SectionTitle>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {content.who_belongs_here && (
           <div>
-            <p className="text-xs font-sans font-semibold tracking-wide
-                          uppercase text-ink-muted mb-2">
-              Ideal fit
+            <p className="text-xs font-display font-semibold uppercase
+                          tracking-wider text-ink-muted mb-2">
+              Who belongs here
             </p>
-            <Prose>{content.who_belongs_here}</Prose>
+            <Prose className="text-sm">{content.who_belongs_here}</Prose>
           </div>
         )}
         {content.lab_culture && (
           <div>
-            <p className="text-xs font-sans font-semibold tracking-wide
-                          uppercase text-ink-muted mb-2">
+            <p className="text-xs font-display font-semibold uppercase
+                          tracking-wider text-ink-muted mb-2">
               Lab culture
             </p>
-            <Prose>{content.lab_culture}</Prose>
+            <Prose className="text-sm">{content.lab_culture}</Prose>
           </div>
         )}
         {content.mentorship_environment && (
           <div>
-            <p className="text-xs font-sans font-semibold tracking-wide
-                          uppercase text-ink-muted mb-2">
+            <p className="text-xs font-display font-semibold uppercase
+                          tracking-wider text-ink-muted mb-2">
               Mentorship
             </p>
-            <Prose>{content.mentorship_environment}</Prose>
+            <Prose className="text-sm">{content.mentorship_environment}</Prose>
           </div>
         )}
       </div>
-    </LabCard>
+    </WideSection>
   )
 }
 
@@ -278,157 +194,198 @@ export function Opportunities({
   if (!content.recruiting_status && !content.open_opportunities?.length)
     return null
   return (
-    <LabCard label="Open opportunities" title="Currently recruiting" accent>
-      <div className="space-y-5 max-w-[680px]">
-        {content.recruiting_status && (
-          <StatusPill text={content.recruiting_status} />
+    <WideSection sectionKey="opportunities" className="bg-brand-ghost">
+      <SectionLabel>Open Opportunities</SectionLabel>
+      <SectionTitle>Join the lab</SectionTitle>
+      {content.recruiting_status && (
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-white
+                        rounded-full mb-5 border border-brand-pale">
+          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+          <span className="text-xs font-serif text-brand-dark font-medium">
+            {content.recruiting_status}
+          </span>
+        </div>
+      )}
+      {content.open_opportunities?.length && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {content.open_opportunities.map((opp, i) => (
+            <AskCard key={i} number={i + 1} title={opp} />
+          ))}
+        </div>
+      )}
+    </WideSection>
+  )
+}
+
+export function LabHumanLayer({ content }: { content: Record<string, string> }) {
+  if (!content.pi_or_lab_perspective_quote) return null
+  return (
+    <WideSection sectionKey="human_layer">
+      <SectionLabel>From the PI</SectionLabel>
+      <Quote
+        quote={content.pi_or_lab_perspective_quote}
+        context={content.why_this_lab_cares_about_this_problem}
+      />
+    </WideSection>
+  )
+}
+
+// ─── Tile content pieces ────────────────────────────────────────────────────
+
+export function TileResearchAreas({
+  content,
+}: {
+  content: { core_research_areas?: string[] }
+}) {
+  if (!content.core_research_areas?.length) return null
+  return (
+    <Tile sectionKey="research_areas">
+      <SectionLabel>Research Areas</SectionLabel>
+      <TagList tags={content.core_research_areas} accent />
+    </Tile>
+  )
+}
+
+export function TileCurrentDirections({
+  content,
+}: {
+  content: { active_directions?: string[] }
+}) {
+  if (!content.active_directions?.length) return null
+  return (
+    <Tile sectionKey="current_directions">
+      <SectionLabel>Current Directions</SectionLabel>
+      <div className="mt-2">
+        <BulletList items={content.active_directions} />
+      </div>
+    </Tile>
+  )
+}
+
+export function TileCapabilities({
+  content,
+}: {
+  content: {
+    methods_capabilities?: string[]
+    datasets_tools_infrastructure?: string[]
+  }
+}) {
+  const hasMethods = content.methods_capabilities?.length
+  const hasInfra = content.datasets_tools_infrastructure?.length
+  if (!hasMethods && !hasInfra) return null
+  return (
+    <Tile sectionKey="capabilities">
+      <SectionLabel>Capabilities</SectionLabel>
+      <div className="space-y-4 mt-2">
+        {hasMethods && (
+          <div>
+            <p className="text-xs font-semibold text-ink-light mb-1.5">Methods</p>
+            <BulletList items={content.methods_capabilities!} />
+          </div>
         )}
-        {content.open_opportunities?.length && (
-          <div className="space-y-3">
-            {content.open_opportunities.map((opp, i) => (
-              <div
-                key={i}
-                className="bg-canvas border border-canvas-border rounded-xl
-                           p-4 flex items-start gap-3"
-              >
-                <span className="text-[10px] font-sans font-semibold
-                                 tracking-wider uppercase text-ink-subtle
-                                 shrink-0 mt-0.5">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <p className="text-sm text-ink-light leading-relaxed flex-1">
-                  {opp}
-                </p>
-              </div>
-            ))}
+        {hasInfra && (
+          <div>
+            <p className="text-xs font-semibold text-ink-light mb-1.5">
+              Infrastructure
+            </p>
+            <BulletList items={content.datasets_tools_infrastructure!} />
           </div>
         )}
       </div>
-    </LabCard>
+    </Tile>
   )
 }
 
-export function LabAsks({ content }: { content: Record<string, string> }) {
-  const hasAny =
-    content.specific_needs_asks || content.best_fit_people_or_partners
-  if (!hasAny) return null
+export function TileLabAsks({ content }: { content: Record<string, string> }) {
+  if (!content.specific_needs_asks) return null
   return (
-    <LabCard label="Collaboration asks" title="Beyond recruiting">
-      <div className="space-y-3 max-w-[680px]">
-        {content.specific_needs_asks && <Prose>{content.specific_needs_asks}</Prose>}
-        {content.best_fit_people_or_partners && (
-          <p className="text-sm text-ink-muted font-sans pt-2
-                        border-t border-canvas-border">
-            <span className="font-semibold text-ink-light">Best fit: </span>
-            {content.best_fit_people_or_partners}
-          </p>
-        )}
-      </div>
-    </LabCard>
+    <Tile sectionKey="asks">
+      <SectionLabel>Collaboration Asks</SectionLabel>
+      <Prose className="text-[0.95rem]">{content.specific_needs_asks}</Prose>
+      {content.best_fit_people_or_partners && (
+        <p className="text-xs text-ink-muted font-serif mt-3 pt-3
+                      border-t border-surface-border">
+          <span className="font-semibold text-ink-light">Best fit: </span>
+          {content.best_fit_people_or_partners}
+        </p>
+      )}
+    </Tile>
   )
 }
 
-export function WhatTheLabOffers({
+export function TileLabOffers({
   content,
 }: {
   content: Record<string, string>
 }) {
   if (!content.offer_description) return null
   return (
-    <LabCard label="What the lab offers" title="Training & support">
-      <Prose className="max-w-[680px]">{content.offer_description}</Prose>
-    </LabCard>
+    <Tile sectionKey="what_the_lab_offers">
+      <SectionLabel>What the Lab Offers</SectionLabel>
+      <Prose className="text-[0.95rem]">{content.offer_description}</Prose>
+    </Tile>
   )
 }
 
-export function ProofVisibility({
+export function TileProofVisibility({
   content,
 }: {
   content: {
     selected_publications_or_outputs?: Array<{
       type: string
       title: string
-      url?: string | null
+      url?: string
     }>
     research_tags?: string[]
     website_links?: string[]
   }
 }) {
   const hasOutputs = content.selected_publications_or_outputs?.length
-  const hasTags = content.research_tags?.length
   const hasLinks = content.website_links?.length
-  if (!hasOutputs && !hasTags && !hasLinks) return null
-
+  const hasTags = content.research_tags?.length
+  if (!hasOutputs && !hasLinks && !hasTags) return null
   return (
-    <LabCard label="Proof & visibility" title="Recent output">
+    <Tile sectionKey="proof_visibility">
+      <SectionLabel>Publications & Links</SectionLabel>
       {hasOutputs && (
-        <div className="mb-6 divide-y divide-canvas-border">
-          {content.selected_publications_or_outputs!.map((o, i) => (
-            <div
-              key={i}
-              className={`${i === 0 ? 'pb-4' : 'py-4'} ${i === content.selected_publications_or_outputs!.length - 1 ? 'pb-0' : ''} flex items-start gap-4`}
-            >
-              <span className="text-[10px] font-sans font-semibold
-                               tracking-wider uppercase text-brand mt-1
-                               w-16 shrink-0">
+        <div className="space-y-2 mb-3">
+          {content.selected_publications_or_outputs!.slice(0, 3).map((o, i) => (
+            <div key={i}>
+              <p className="text-[10px] text-brand uppercase tracking-wider
+                            font-display font-semibold">
                 {o.type}
-              </span>
+              </p>
               {o.url ? (
                 <a
                   href={o.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-ink hover:text-brand-deep
-                             underline underline-offset-2
-                             decoration-canvas-border hover:decoration-brand
-                             transition-colors flex-1"
+                  className="text-sm text-ink-light hover:text-brand leading-snug"
                 >
-                  {o.title}
+                  {o.title} ↗
                 </a>
               ) : (
-                <p className="text-sm text-ink flex-1">{o.title}</p>
+                <p className="text-sm text-ink-light leading-snug">{o.title}</p>
               )}
             </div>
           ))}
         </div>
       )}
-      {hasTags && (
-        <div className="mb-5">
-          <TagList tags={content.research_tags!} />
-        </div>
-      )}
       {hasLinks && (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {content.website_links!.map((url, i) => (
             <a
               key={i}
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="block text-sm text-brand hover:text-brand-deep
-                         underline underline-offset-2 transition-colors break-all"
+              className="block text-xs text-brand hover:text-brand-dark truncate"
             >
-              {url}
+              {url} ↗
             </a>
           ))}
         </div>
       )}
-    </LabCard>
-  )
-}
-
-export function LabHumanLayer({
-  content,
-}: {
-  content: Record<string, string>
-}) {
-  if (!content.pi_or_lab_perspective_quote) return null
-  return (
-    <LabCard label="From the PI">
-      <Pullquote
-        quote={content.pi_or_lab_perspective_quote}
-        attribution={content.why_this_lab_cares_about_this_problem}
-      />
-    </LabCard>
+    </Tile>
   )
 }

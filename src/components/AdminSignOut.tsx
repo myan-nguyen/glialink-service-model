@@ -17,7 +17,7 @@ export function AdminSignOut({ compact = false }: { compact?: boolean }) {
         onClick={handleSignOut}
         title="Sign out"
         className="w-full h-7 flex items-center justify-center rounded
-                   text-neutral-600 hover:text-neutral-400 hover:bg-neutral-800
+                   text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100
                    transition-colors"
       >
         ⏻
@@ -28,7 +28,7 @@ export function AdminSignOut({ compact = false }: { compact?: boolean }) {
   return (
     <button
       onClick={handleSignOut}
-      className="text-xs text-neutral-600 hover:text-neutral-400 transition-colors"
+      className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
     >
       Sign out
     </button>

@@ -54,7 +54,7 @@ export default function AdminDashboard() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+            <h1 className="text-2xl font-semibold text-neutral-900">Dashboard</h1>
             <p className="text-sm text-neutral-500 mt-1">
               {artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''}
               {' · '}
@@ -65,8 +65,8 @@ export default function AdminDashboard() {
           </div>
           <Link
             href="/admin/intake/new"
-            className="px-4 py-2 bg-white text-neutral-900 rounded-lg
-                       text-sm font-medium hover:bg-neutral-100 transition-colors"
+            className="px-4 py-2 bg-neutral-900 text-white rounded-lg
+                       text-sm font-medium hover:bg-neutral-800 transition-colors"
           >
             + New Intake
           </Link>
@@ -79,16 +79,16 @@ export default function AdminDashboard() {
             placeholder="Search by name, email, or institution…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full max-w-md bg-neutral-900 border border-neutral-700
-                       rounded-lg px-4 py-2.5 text-sm text-white
-                       placeholder-neutral-600 focus:outline-none
+            className="w-full max-w-md bg-white border border-neutral-300
+                       rounded-lg px-4 py-2.5 text-sm text-neutral-900
+                       placeholder-neutral-400 focus:outline-none
                        focus:border-neutral-500 transition-colors"
           />
         </div>
 
         {error && (
-          <div className="mb-6 text-sm text-red-400 bg-red-950/30 border
-                          border-red-800 rounded-lg px-4 py-3">
+          <div className="mb-6 text-sm text-red-600 bg-red-50 border
+                          border-red-200 rounded-lg px-4 py-3">
             {error}
           </div>
         )}
@@ -97,9 +97,9 @@ export default function AdminDashboard() {
           <div className="space-y-8">
             {[...Array(2)].map((_, i) => (
               <div key={i} className="space-y-3">
-                <div className="h-4 w-24 bg-neutral-800 rounded animate-pulse" />
-                <div className="h-12 bg-neutral-800/50 rounded animate-pulse" />
-                <div className="h-12 bg-neutral-800/50 rounded animate-pulse" />
+                <div className="h-4 w-24 bg-neutral-100 rounded animate-pulse" />
+                <div className="h-12 bg-neutral-100 rounded animate-pulse" />
+                <div className="h-12 bg-neutral-100 rounded animate-pulse" />
               </div>
             ))}
           </div>
@@ -107,13 +107,13 @@ export default function AdminDashboard() {
           <div className="space-y-10">
             <section>
               <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-sm font-medium text-neutral-300">Drafts</h2>
-                <span className="text-xs text-neutral-600 bg-neutral-800
+                <h2 className="text-sm font-medium text-neutral-700">Drafts</h2>
+                <span className="text-xs text-neutral-500 bg-neutral-100
                                  px-2 py-0.5 rounded-full">
                   {drafts.length}
                 </span>
               </div>
-              <div className="border border-neutral-800 rounded-xl overflow-hidden">
+              <div className="border border-neutral-200 rounded-xl overflow-hidden">
                 <ArtifactTable
                   artifacts={drafts}
                   onDelete={handleDelete}
@@ -124,13 +124,13 @@ export default function AdminDashboard() {
 
             <section>
               <div className="flex items-center gap-3 mb-4">
-                <h2 className="text-sm font-medium text-neutral-300">Published</h2>
-                <span className="text-xs text-neutral-600 bg-neutral-800
+                <h2 className="text-sm font-medium text-neutral-700">Published</h2>
+                <span className="text-xs text-neutral-500 bg-neutral-100
                                  px-2 py-0.5 rounded-full">
                   {published.length}
                 </span>
               </div>
-              <div className="border border-neutral-800 rounded-xl overflow-hidden">
+              <div className="border border-neutral-200 rounded-xl overflow-hidden">
                 <ArtifactTable
                   artifacts={published}
                   onDelete={handleDelete}

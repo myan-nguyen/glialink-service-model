@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
@@ -12,7 +12,6 @@ import { useGenerationPoller } from './useGenerationPoller'
 import { useUnsavedWarning } from './useUnsavedWarning'
 import { PagePreview } from './PagePreview'
 import { SectionPanel } from './SectionPanel'
-import { CustomSectionAdder } from './CustomSectionAdder'
 import type { Artifact, Researcher } from '@/lib/types'
 
 interface Props {
@@ -30,8 +29,6 @@ export function DraftEditor({ artifact }: Props) {
     setIsDirty,
     updateSection,
   } = useEditorStore()
-
-  const [bottomCollapsed, setBottomCollapsed] = useState(false)
 
   const isDirty = useEditorStore((state) => state.isDirty)
   useUnsavedWarning(isDirty)
@@ -119,19 +116,19 @@ export function DraftEditor({ artifact }: Props) {
   return (
     <div className="flex flex-col h-screen">
       {/* Top bar */}
-      <div className="flex-shrink-0 border-b border-neutral-800 px-6 py-3
+      <div className="flex-shrink-0 border-b border-neutral-200 px-6 py-3
                       flex items-center justify-between">
         <div className="flex items-center gap-4 min-w-0">
           <Link
             href="/admin"
-            className="text-neutral-600 hover:text-neutral-300 transition-colors
+            className="text-neutral-400 hover:text-neutral-600 transition-colors
                        text-sm flex items-center gap-1 shrink-0"
           >
             ← Dashboard
           </Link>
-          <div className="w-px h-4 bg-neutral-800 shrink-0" />
+          <div className="w-px h-4 bg-neutral-200 shrink-0" />
           <div className="min-w-0">
-            <p className="text-sm font-medium text-white truncate">
+            <p className="text-sm font-medium text-neutral-900 truncate">
               {researcher?.full_name ?? artifact.researcher_email}
             </p>
             <p className="text-xs text-neutral-500 capitalize mt-0.5">
@@ -148,7 +145,7 @@ export function DraftEditor({ artifact }: Props) {
               href={`/p/${artifact.slug}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-neutral-500 hover:text-white transition-colors"
+              className="text-xs text-neutral-400 hover:text-neutral-700 transition-colors"
             >
               View published ↗
             </a>
@@ -160,19 +157,18 @@ export function DraftEditor({ artifact }: Props) {
       <div className="flex-1 overflow-hidden">
         <PanelGroup direction="horizontal" autoSaveId="editor-panels">
           <Panel defaultSize={70} minSize={40}>
-            <div className="h-full bg-neutral-950">
+            <div className="h-full bg-white">
               <PagePreview outputType={artifact.output_type} />
             </div>
           </Panel>
 
-          <PanelResizeHandle className="w-px bg-neutral-800 hover:bg-neutral-600
+          <PanelResizeHandle className="w-px bg-neutral-200 hover:bg-neutral-400
                                         data-[resize-handle-state=drag]:bg-neutral-500
                                         transition-colors" />
 
           <Panel defaultSize={30} minSize={20} maxSize={45}>
-            <div className="h-full bg-neutral-900 flex flex-col">
+            <div className="h-full bg-neutral-50 flex flex-col">
               <SectionPanel
-                artifactId={artifact.id}
                 outputType={artifact.output_type}
                 onRegenerateSection={handleRegenerateSection}
                 onRegenerateAll={handleRegenerateAll}
@@ -184,33 +180,6 @@ export function DraftEditor({ artifact }: Props) {
         </PanelGroup>
       </div>
 
-      {/* Collapsible bottom bar */}
-      <div className="flex-shrink-0 bg-neutral-950 border-t border-neutral-800">
-        <button
-          onClick={() => setBottomCollapsed((c) => !c)}
-          className="w-full px-6 py-2.5 flex items-center justify-between
-                     text-xs text-neutral-500 hover:text-neutral-300
-                     hover:bg-neutral-900/40 transition-colors"
-        >
-          <span className="flex items-center gap-2">
-            <span
-              className={`inline-block transition-transform ${
-                bottomCollapsed ? '' : 'rotate-180'
-              }`}
-            >
-              ▾
-            </span>
-            Additional Sections
-            {customSections.length > 0 && (
-              <span className="text-neutral-700">({customSections.length})</span>
-            )}
-          </span>
-          <span className="text-neutral-700">
-            {bottomCollapsed ? 'Click to expand' : 'Click to collapse'}
-          </span>
-        </button>
-        {!bottomCollapsed && <CustomSectionAdder />}
-      </div>
     </div>
   )
 }

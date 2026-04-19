@@ -70,9 +70,9 @@ export const SECTION_LABELS: Record<string, string> = {
 }
 
 export const CONFIDENCE_COLORS = {
-  high: 'text-green-400 bg-green-950/40 border-green-800',
-  medium: 'text-amber-400 bg-amber-950/40 border-amber-800',
-  low: 'text-red-400 bg-red-950/40 border-red-800',
+  high: 'text-black bg-green-200 border-green-300',
+  medium: 'text-black bg-yellow-200 border-yellow-300',
+  low: 'text-black bg-red-200 border-red-300',
 }
 
 // Fields that render as single-line inputs (short text)

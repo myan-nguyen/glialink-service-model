@@ -12,7 +12,7 @@ export default async function AdminLayout({
   if (!user) redirect('/login')
 
   return (
-    <div className="min-h-screen flex bg-neutral-950 text-neutral-100">
+    <div className="min-h-screen flex bg-white text-neutral-900">
       <AdminSidebar userEmail={user.email ?? ''} />
       <main className="flex-1 overflow-hidden">{children}</main>
     </div>

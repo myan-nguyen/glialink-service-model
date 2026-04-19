@@ -1,8 +1,8 @@
 'use client'
 import { useEditorStore } from './useEditorStore'
 
-const inputClass = `bg-neutral-900 border border-neutral-700 rounded-lg
-  px-3 py-2 text-sm text-white placeholder-neutral-600
+const inputClass = `bg-white border border-neutral-300 rounded-lg
+  px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400
   focus:outline-none focus:border-neutral-500 transition-colors`
 
 export function CustomSectionAdder() {
@@ -21,7 +21,7 @@ export function CustomSectionAdder() {
             {customSections.map((cs) => (
               <div
                 key={cs.id}
-                className="border border-neutral-800 rounded-xl p-4 space-y-3"
+                className="border border-neutral-200 rounded-xl p-4 space-y-3"
               >
                 <div className="flex items-center justify-between gap-3">
                   <input
@@ -32,7 +32,7 @@ export function CustomSectionAdder() {
                   />
                   <button
                     onClick={() => removeCustomSection(cs.id)}
-                    className="text-xs text-neutral-600 hover:text-red-400
+                    className="text-xs text-neutral-400 hover:text-red-500
                                transition-colors shrink-0"
                   >
                     Remove
@@ -52,8 +52,8 @@ export function CustomSectionAdder() {
 
         <button
           onClick={addCustomSection}
-          className="px-3 py-1.5 text-xs border border-neutral-700 text-neutral-400
-                     rounded-lg hover:border-neutral-500 hover:text-white
+          className="px-3 py-1.5 text-xs border border-neutral-300 text-neutral-500
+                     rounded-lg hover:border-neutral-500 hover:text-neutral-900
                      transition-colors"
         >
           + Add section

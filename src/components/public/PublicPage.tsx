@@ -1,8 +1,47 @@
 import type { Artifact } from '@/lib/types'
-import * as P from './project-sections'
-import * as R from './researcher-sections'
-import * as L from './lab-sections'
-import { CustomSections } from './custom-sections'
+import { TileGrid, CustomSections } from './shared'
+import {
+  ProjectHeader,
+  CurrentStagePill,
+  ProjectSummary,
+  WhyThisMatters,
+  ResearchFocus,
+  FiguresEvidence,
+  ProjectAsks,
+  ResearcherPerspective,
+  TileResearchTags,
+  TileKeyFindings,
+  TileMethods,
+  TilePotentialImpact,
+  TileWhatWeOffer,
+} from './project-sections'
+import {
+  ResearcherHeader,
+  ResearcherIdentity,
+  ExpertiseSection,
+  SelectedProjects,
+  HumanLayer,
+  TileResearchThemes,
+  TileCurrentFocus,
+  TileDiscoverability,
+  TileSelectedOutputs,
+  TileResearcherAsks,
+  TileWhatTheyOffer,
+} from './researcher-sections'
+import {
+  LabHeader,
+  LabSummary,
+  FlagshipProjects,
+  TeamFit,
+  Opportunities,
+  LabHumanLayer,
+  TileResearchAreas,
+  TileCurrentDirections,
+  TileCapabilities,
+  TileLabAsks,
+  TileLabOffers,
+  TileProofVisibility,
+} from './lab-sections'
 
 function get(
   sections: Record<string, { content: Record<string, unknown> }>,
@@ -16,89 +55,90 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
     string,
     { content: Record<string, unknown> }
   >
-  const customSections = ((s.custom_sections as unknown) ?? []) as Array<{
-    id: string
-    title: string
-    content: string
-  }>
+  const customSections = (
+    (s.custom_sections as unknown) ?? []
+  ) as Array<{ id: string; title: string; content: string }>
 
   if (artifact.output_type === 'project_page') {
-    const asksContent = get(s, 'asks') as Record<string, unknown>
-    // Support either shape: {ask_title, ...} or {asks: [...]}
-    const asksArray =
-      Array.isArray(asksContent?.asks)
-        ? (asksContent.asks as Array<{
-            ask_title?: string
-            ask_description?: string
-            best_fit_people?: string
-          }>)
-        : asksContent.ask_title || asksContent.ask_description
-          ? [
-              {
-                ask_title: asksContent.ask_title as string,
-                ask_description: asksContent.ask_description as string,
-                best_fit_people: asksContent.best_fit_people as string,
-              },
-            ]
-          : []
-
     return (
-      <>
-        <P.ProjectHeader content={get(s, 'header')} />
-        <P.CurrentStage content={get(s, 'current_stage')} />
-        <P.ProjectSummary content={get(s, 'summary')} />
-        <P.WhyThisMatters content={get(s, 'why_this_matters')} />
-        <P.ResearchFocus content={get(s, 'research_focus')} />
-        <P.MethodsApproach content={get(s, 'methods_approach')} />
-        <P.KeyFindings content={get(s, 'key_findings')} />
-        <P.ResearchTags content={get(s, 'research_tags')} />
-        <P.FiguresEvidence content={get(s, 'figures_evidence')} />
-        <P.ProjectAsksList asks={asksArray} />
-        <P.WhatWeOffer content={get(s, 'what_we_offer')} />
-        <P.PotentialImpact content={get(s, 'potential_impact')} />
-        <P.ResearcherPerspective content={get(s, 'researcher_perspective')} />
+      <article>
+        <ProjectHeader content={get(s, 'header')} />
+        <CurrentStagePill content={get(s, 'current_stage')} />
+        <ProjectSummary content={get(s, 'summary')} />
+        <WhyThisMatters content={get(s, 'why_this_matters')} />
+        <ResearchFocus content={get(s, 'research_focus')} />
+
+        <TileGrid columns={3} tileHeight="h-64">
+          <TileResearchTags content={get(s, 'research_tags')} />
+          <TileMethods content={get(s, 'methods_approach')} />
+          <TilePotentialImpact content={get(s, 'potential_impact')} />
+        </TileGrid>
+
+        <TileGrid columns={2} tileHeight="h-80">
+          <TileKeyFindings content={get(s, 'key_findings')} />
+          <TileWhatWeOffer content={get(s, 'what_we_offer')} />
+        </TileGrid>
+
+        <FiguresEvidence content={get(s, 'figures_evidence')} />
+        <ProjectAsks content={get(s, 'asks')} />
+        <ResearcherPerspective content={get(s, 'researcher_perspective')} />
         <CustomSections sections={customSections} />
-      </>
+      </article>
     )
   }
 
   if (artifact.output_type === 'researcher_profile') {
     return (
-      <div className="space-y-5 sm:space-y-6 pb-4">
-        <R.ResearcherHero content={get(s, 'header')} />
-        <R.ResearcherIdentity content={get(s, 'identity')} />
-        <R.ResearchThemes content={get(s, 'research_themes')} />
-        <R.CurrentFocusSection content={get(s, 'current_focus')} />
-        <R.ExpertiseSection content={get(s, 'expertise')} />
-        <R.SelectedProjects content={get(s, 'selected_projects')} />
-        <R.SelectedOutputs content={get(s, 'selected_outputs')} />
-        <R.WhoTheyWantToReach content={get(s, 'who_they_want_to_reach')} />
-        <R.ResearcherAsks content={get(s, 'asks')} />
-        <R.WhatTheyOffer content={get(s, 'what_they_offer')} />
-        <R.HumanLayer content={get(s, 'human_layer')} />
-        <R.Discoverability content={get(s, 'discoverability')} />
-        <CustomSections sections={customSections} cardStyle />
-      </div>
+      <article>
+        <ResearcherHeader content={get(s, 'header')} />
+        <ResearcherIdentity content={get(s, 'identity')} />
+
+        <TileGrid columns={3} tileHeight="h-64">
+          <TileResearchThemes content={get(s, 'research_themes')} />
+          <TileCurrentFocus content={get(s, 'current_focus')} />
+          <TileDiscoverability content={get(s, 'discoverability')} />
+        </TileGrid>
+
+        <ExpertiseSection content={get(s, 'expertise')} />
+        <SelectedProjects content={get(s, 'selected_projects')} />
+
+        <TileGrid columns={3} tileHeight="h-80">
+          <TileSelectedOutputs content={get(s, 'selected_outputs')} />
+          <TileResearcherAsks content={get(s, 'asks')} />
+          <TileWhatTheyOffer content={get(s, 'what_they_offer')} />
+        </TileGrid>
+
+        <HumanLayer content={get(s, 'human_layer')} />
+        <CustomSections sections={customSections} />
+      </article>
     )
   }
 
   if (artifact.output_type === 'lab_profile') {
     return (
-      <div className="space-y-5 sm:space-y-6 pb-4">
-        <L.LabHero content={get(s, 'header')} />
-        <L.LabSummary content={get(s, 'summary')} />
-        <L.ResearchAreas content={get(s, 'research_areas')} />
-        <L.Opportunities content={get(s, 'opportunities')} />
-        <L.CurrentDirections content={get(s, 'current_directions')} />
-        <L.FlagshipProjects content={get(s, 'flagship_projects')} />
-        <L.Capabilities content={get(s, 'capabilities')} />
-        <L.TeamFit content={get(s, 'team_fit')} />
-        <L.LabAsks content={get(s, 'asks')} />
-        <L.WhatTheLabOffers content={get(s, 'what_the_lab_offers')} />
-        <L.ProofVisibility content={get(s, 'proof_visibility')} />
-        <L.LabHumanLayer content={get(s, 'human_layer')} />
-        <CustomSections sections={customSections} cardStyle />
-      </div>
+      <article>
+        <LabHeader content={get(s, 'header')} />
+        <LabSummary content={get(s, 'summary')} />
+
+        <TileGrid columns={3} tileHeight="h-64">
+          <TileResearchAreas content={get(s, 'research_areas')} />
+          <TileCurrentDirections content={get(s, 'current_directions')} />
+          <TileCapabilities content={get(s, 'capabilities')} />
+        </TileGrid>
+
+        <FlagshipProjects content={get(s, 'flagship_projects')} />
+        <TeamFit content={get(s, 'team_fit')} />
+        <Opportunities content={get(s, 'opportunities')} />
+
+        <TileGrid columns={3} tileHeight="h-72">
+          <TileLabAsks content={get(s, 'asks')} />
+          <TileLabOffers content={get(s, 'what_the_lab_offers')} />
+          <TileProofVisibility content={get(s, 'proof_visibility')} />
+        </TileGrid>
+
+        <LabHumanLayer content={get(s, 'human_layer')} />
+        <CustomSections sections={customSections} />
+      </article>
     )
   }
 

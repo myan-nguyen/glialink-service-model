@@ -17,25 +17,25 @@ export function AdminSidebar({ userEmail }: { userEmail: string }) {
     <aside
       className={`${
         collapsed ? 'w-14' : 'w-56'
-      } shrink-0 border-r border-neutral-800 flex flex-col
-         transition-[width] duration-200 ease-out`}
+      } shrink-0 border-r border-neutral-200 flex flex-col
+         transition-[width] duration-200 ease-out h-screen sticky top-0`}
     >
       {/* Brand + collapse toggle */}
-      <div className="px-3 py-4 border-b border-neutral-800 flex items-center
+      <div className="px-3 py-4 border-b border-neutral-200 flex items-center
                       justify-between gap-2">
         {!collapsed && (
           <div className="truncate">
-            <span className="text-sm font-semibold tracking-wide text-white">
+            <span className="text-sm font-semibold tracking-wide text-neutral-900">
               Glialink
             </span>
-            <span className="ml-1.5 text-xs text-neutral-500">admin</span>
+            <span className="ml-1.5 text-xs text-neutral-400">admin</span>
           </div>
         )}
         <button
           onClick={() => setCollapsed((c) => !c)}
           aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           className="w-7 h-7 flex items-center justify-center rounded
-                     text-neutral-500 hover:text-white hover:bg-neutral-800
+                     text-neutral-400 hover:text-neutral-700 hover:bg-neutral-100
                      transition-colors shrink-0"
         >
           {collapsed ? '›' : '‹'}
@@ -56,11 +56,11 @@ export function AdminSidebar({ userEmail }: { userEmail: string }) {
                 collapsed ? 'justify-center px-0 py-2.5' : 'px-3 py-2'
               } ${
                 active
-                  ? 'bg-neutral-800 text-white'
-                  : 'text-neutral-400 hover:text-white hover:bg-neutral-800/50'
+                  ? 'bg-neutral-100 text-neutral-900'
+                  : 'text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50'
               }`}
             >
-              <span className="text-neutral-500 text-xs shrink-0">{icon}</span>
+              <span className="text-neutral-400 text-xs shrink-0">{icon}</span>
               {!collapsed && <span>{label}</span>}
             </Link>
           )
@@ -68,9 +68,9 @@ export function AdminSidebar({ userEmail }: { userEmail: string }) {
       </nav>
 
       {/* User footer */}
-      <div className="px-3 py-3 border-t border-neutral-800">
+      <div className="px-3 py-3 border-t border-neutral-200">
         {!collapsed && (
-          <p className="text-xs text-neutral-500 truncate mb-1">{userEmail}</p>
+          <p className="text-xs text-neutral-400 truncate mb-1">{userEmail}</p>
         )}
         <AdminSignOut compact={collapsed} />
       </div>

@@ -15,6 +15,10 @@ Rules:
 - The lab profile should feel welcoming and specific — useful for recruitment
   and collaboration, not just informational.
 - Public-facing fields must not include anything_not_public content.
+- Write all public-facing prose in first person ("we", "our") or in a
+  noun-phrase style — never in third person. Never write "[Lab name] does" or
+  "[PI name] leads". Instead write "We study", "Our lab focuses on", or just
+  "Cutting-edge infrastructure for…".
 
 Return this exact JSON structure:
 

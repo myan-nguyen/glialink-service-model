@@ -18,14 +18,14 @@ function OutputTypeBadge({ type }: { type: string }) {
     lab_profile: 'Lab',
   }
   const colors: Record<string, string> = {
-    project_page: 'bg-blue-950/40 text-blue-400 border-blue-800',
-    researcher_profile: 'bg-violet-950/40 text-violet-400 border-violet-800',
-    lab_profile: 'bg-emerald-950/40 text-emerald-400 border-emerald-800',
+    project_page: 'bg-blue-50 text-blue-700 border-blue-200',
+    researcher_profile: 'bg-violet-50 text-violet-700 border-violet-200',
+    lab_profile: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   }
   return (
     <span
       className={`text-xs px-2 py-0.5 rounded border font-medium ${
-        colors[type] ?? 'bg-neutral-800 text-neutral-400 border-neutral-700'
+        colors[type] ?? 'bg-neutral-100 text-neutral-500 border-neutral-200'
       }`}
     >
       {labels[type] ?? type}
@@ -36,9 +36,9 @@ function OutputTypeBadge({ type }: { type: string }) {
 function GenerationBadge({ status }: { status: string }) {
   if (status === 'complete') return null
   const colors: Record<string, string> = {
-    pending: 'text-neutral-500',
-    generating: 'text-amber-400',
-    failed: 'text-red-400',
+    pending: 'text-neutral-400',
+    generating: 'text-amber-600',
+    failed: 'text-red-600',
   }
   const labels: Record<string, string> = {
     pending: 'Pending',
@@ -46,7 +46,7 @@ function GenerationBadge({ status }: { status: string }) {
     failed: 'Failed',
   }
   return (
-    <span className={`text-xs ${colors[status] ?? 'text-neutral-500'}`}>
+    <span className={`text-xs ${colors[status] ?? 'text-neutral-400'}`}>
       {labels[status] ?? status}
     </span>
   )
@@ -64,7 +64,7 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
 
   if (artifacts.length === 0) {
     return (
-      <p className="text-sm text-neutral-600 py-6 text-center">
+      <p className="text-sm text-neutral-400 py-6 text-center">
         None yet.
       </p>
     )
@@ -74,27 +74,27 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-800">
+          <tr className="border-b border-neutral-200">
             <th className="text-left py-2.5 px-3 text-xs font-medium
-                           text-neutral-500 uppercase tracking-wide">
+                           text-neutral-400 uppercase tracking-wide">
               Researcher
             </th>
             <th className="text-left py-2.5 px-3 text-xs font-medium
-                           text-neutral-500 uppercase tracking-wide">
+                           text-neutral-400 uppercase tracking-wide">
               Type
             </th>
             <th className="text-left py-2.5 px-3 text-xs font-medium
-                           text-neutral-500 uppercase tracking-wide hidden md:table-cell">
+                           text-neutral-400 uppercase tracking-wide hidden md:table-cell">
               Institution
             </th>
             <th className="text-left py-2.5 px-3 text-xs font-medium
-                           text-neutral-500 uppercase tracking-wide hidden lg:table-cell">
+                           text-neutral-400 uppercase tracking-wide hidden lg:table-cell">
               Updated
             </th>
             <th className="py-2.5 px-3" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-neutral-800/50">
+        <tbody className="divide-y divide-neutral-200">
           {artifacts.map((a) => {
             const name = a.researchers?.full_name ?? a.researchers?.email ?? '—'
             const email = a.researchers?.email ?? ''
@@ -111,10 +111,10 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
                     router.push(`/admin/artifacts/${a.id}/edit`)
                   }
                 }}
-                className="hover:bg-neutral-800/30 cursor-pointer transition-colors group"
+                className="hover:bg-neutral-50 cursor-pointer transition-colors group"
               >
                 <td className="py-3 px-3">
-                  <p className="font-medium text-white group-hover:text-white">
+                  <p className="font-medium text-neutral-900">
                     {name}
                   </p>
                   <p className="text-xs text-neutral-500 mt-0.5">{email}</p>
@@ -131,7 +131,7 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            className="text-xs text-neutral-600 hover:text-neutral-400
+                            className="text-xs text-neutral-400 hover:text-neutral-600
                                     transition-colors"
                         >
                             ↗
@@ -139,10 +139,10 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
                         )}
                     </div>
                 </td>
-                <td className="py-3 px-3 text-neutral-400 hidden md:table-cell">
+                <td className="py-3 px-3 text-neutral-600 hidden md:table-cell">
                   {institution}
                 </td>
-                <td className="py-3 px-3 text-neutral-500 hidden lg:table-cell">
+                <td className="py-3 px-3 text-neutral-400 hidden lg:table-cell">
                   {formatDate(a.updated_at)}
                 </td>
                 <td
@@ -158,14 +158,14 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
                           setConfirmDelete(null)
                         }}
                         disabled={deleting === a.id}
-                        className="text-xs text-red-400 hover:text-red-300
+                        className="text-xs text-red-500 hover:text-red-700
                                    transition-colors disabled:opacity-40"
                       >
                         {deleting === a.id ? 'Deleting…' : 'Yes, delete'}
                       </button>
                       <button
                         onClick={() => setConfirmDelete(null)}
-                        className="text-xs text-neutral-600 hover:text-neutral-400
+                        className="text-xs text-neutral-400 hover:text-neutral-600
                                    transition-colors"
                       >
                         Cancel
@@ -174,7 +174,7 @@ export function ArtifactTable({ artifacts, onDelete, deleting }: Props) {
                   ) : (
                     <button
                       onClick={() => setConfirmDelete(a.id)}
-                      className="text-xs text-neutral-700 hover:text-red-400
+                      className="text-xs text-neutral-300 hover:text-red-500
                                  transition-colors opacity-0 group-hover:opacity-100"
                     >
                       Delete

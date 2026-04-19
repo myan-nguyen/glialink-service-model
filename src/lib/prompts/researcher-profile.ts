@@ -14,6 +14,9 @@ Rules:
 - Do not hallucinate publications, positions, or affiliations.
 - The profile should feel like a person, not a CV.
 - Public-facing fields must not include anything_not_public content.
+- Write all public-facing prose in first person ("I", "my", "we") or in a
+  noun-phrase style — never in third person. Never write "Marek is" or
+  "[Name] brings". Instead write "I am", "I bring", or just "Deep expertise in…".
 
 Return this exact JSON structure:
 

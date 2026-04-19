@@ -16,6 +16,9 @@ Rules:
 - Anything marked as not for public sharing must appear only in constraints,
   never in public-facing fields.
 - Keep public-facing copy clear, jargon-light, and compelling.
+- Write all public-facing prose in first person ("I", "my", "we") or in a
+  noun-phrase style — never in third person. Never write "[Name] is" or
+  "[Name] brings". Instead write "I am", "we found", or just "Early-stage findings show…".
 
 Return this exact JSON structure:
 

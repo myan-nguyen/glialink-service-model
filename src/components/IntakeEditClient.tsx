@@ -31,9 +31,9 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="block text-sm font-medium text-neutral-200">
+      <label className="block text-sm font-medium text-neutral-700">
         {label}
-        {required && <span className="text-red-400 ml-1">*</span>}
+        {required && <span className="text-red-500 ml-1">*</span>}
       </label>
       {hint && <p className="text-xs text-neutral-500">{hint}</p>}
       {children}
@@ -41,8 +41,8 @@ function Field({
   )
 }
 
-const inputClass = `w-full bg-neutral-900 border border-neutral-700 rounded-lg
-  px-3 py-2 text-sm text-white placeholder-neutral-600
+const inputClass = `w-full bg-white border border-neutral-300 rounded-lg
+  px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400
   focus:outline-none focus:border-neutral-500 transition-colors`
 
 const textareaClass = `${inputClass} resize-none`
@@ -57,14 +57,14 @@ function OutputTypeBadge({ type }: { type: string }) {
     lab_profile: 'Lab',
   }
   const colors: Record<string, string> = {
-    project_page: 'bg-blue-950/40 text-blue-400 border-blue-800',
-    researcher_profile: 'bg-violet-950/40 text-violet-400 border-violet-800',
-    lab_profile: 'bg-emerald-950/40 text-emerald-400 border-emerald-800',
+    project_page: 'bg-blue-50 text-blue-700 border-blue-200',
+    researcher_profile: 'bg-violet-50 text-violet-700 border-violet-200',
+    lab_profile: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   }
   return (
     <span
       className={`text-xs px-2 py-0.5 rounded border font-medium ${
-        colors[type] ?? 'bg-neutral-800 text-neutral-400 border-neutral-700'
+        colors[type] ?? 'bg-neutral-100 text-neutral-500 border-neutral-200'
       }`}
     >
       {labels[type] ?? type}
@@ -91,19 +91,19 @@ function ArtifactListItem({ artifact }: { artifact: ArtifactMeta }) {
 
   return (
     <div className="flex items-center justify-between py-3 border-b
-                    border-neutral-800 last:border-0">
+                    border-neutral-200 last:border-0">
       <div className="flex items-center gap-3">
         <OutputTypeBadge type={artifact.output_type} />
         <div>
-          <p className="text-xs text-neutral-400 capitalize">
+          <p className="text-xs text-neutral-600 capitalize">
             {artifact.status}
             {artifact.generation_status !== 'complete' && (
-              <span className="ml-2 text-amber-400">
+              <span className="ml-2 text-amber-600">
                 · {artifact.generation_status}
               </span>
             )}
           </p>
-          <p className="text-xs text-neutral-600 mt-0.5">Updated {date}</p>
+          <p className="text-xs text-neutral-400 mt-0.5">Updated {date}</p>
         </div>
       </div>
       <div className="flex items-center gap-3">
@@ -112,7 +112,7 @@ function ArtifactListItem({ artifact }: { artifact: ArtifactMeta }) {
             href={`/p/${artifact.slug}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-neutral-600 hover:text-neutral-400
+            className="text-xs text-neutral-400 hover:text-neutral-600
                        transition-colors"
           >
             View ↗
@@ -120,8 +120,8 @@ function ArtifactListItem({ artifact }: { artifact: ArtifactMeta }) {
         )}
         <Link
           href={`/admin/artifacts/${artifact.id}/edit`}
-          className="text-xs text-neutral-400 hover:text-white
-                     border border-neutral-700 rounded px-2.5 py-1
+          className="text-xs text-neutral-600 hover:text-neutral-900
+                     border border-neutral-300 rounded px-2.5 py-1
                      hover:border-neutral-500 transition-colors"
         >
           Edit
@@ -258,22 +258,22 @@ function IdentityEditor({
       <Field label="Additional notes">
         <textarea
           className={textareaClass}
-          rows={2}
+          rows={4}
           value={values.additional_notes}
           onChange={(e) => set('additional_notes', e.target.value)}
         />
       </Field>
 
       {error && (
-        <p className="text-xs text-red-400">{error}</p>
+        <p className="text-xs text-red-500">{error}</p>
       )}
 
       <div className="flex justify-end">
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-5 py-2.5 bg-white text-neutral-900 rounded-lg text-sm
-                     font-medium hover:bg-neutral-100 transition-colors
+          className="px-5 py-2.5 bg-neutral-900 text-white rounded-lg text-sm
+                     font-medium hover:bg-neutral-800 transition-colors
                      disabled:opacity-50"
         >
           {saving ? 'Saving…' : saved ? '✓ Saved' : 'Save changes'}
@@ -389,7 +389,7 @@ function NewArtifactForm({
   if (step === 2) {
     return (
       <div className="space-y-4">
-        <p className="text-sm text-neutral-400">
+        <p className="text-sm text-neutral-500">
           Select the output type to generate under this researcher.
         </p>
 
@@ -406,21 +406,24 @@ function NewArtifactForm({
               className={`w-full text-left px-4 py-3.5 rounded-lg border
                           transition-colors ${
                 isDisabled
-                  ? 'border-neutral-800 text-neutral-600 cursor-not-allowed'
+                  ? 'border-neutral-200 text-neutral-300 cursor-not-allowed'
                   : outputType === opt.value
-                    ? 'border-white bg-neutral-800 text-white'
-                    : 'border-neutral-700 text-neutral-300 hover:border-neutral-500'
+                    ? 'border-neutral-900 bg-neutral-900 text-white'
+                    : 'border-neutral-200 text-neutral-700 hover:border-neutral-400'
               }`}
             >
               <p className="text-sm font-medium">{opt.label}</p>
-              <p className="text-xs text-neutral-500 mt-0.5">
+              <p className={`text-xs mt-0.5 ${
+                isDisabled ? 'text-neutral-300' :
+                outputType === opt.value ? 'text-neutral-300' : 'text-neutral-500'
+              }`}>
                 {isDisabled ? 'Already exists for this researcher' : opt.description}
               </p>
             </button>
           )
         })}
 
-        {typeError && <p className="text-xs text-red-400">{typeError}</p>}
+        {typeError && <p className="text-xs text-red-500">{typeError}</p>}
 
         <div className="flex justify-end pt-2">
           <button
@@ -429,8 +432,8 @@ function NewArtifactForm({
               setTypeError('')
               setStep(3)
             }}
-            className="px-5 py-2.5 bg-white text-neutral-900 rounded-lg
-                       text-sm font-medium hover:bg-neutral-100 transition-colors"
+            className="px-5 py-2.5 bg-neutral-900 text-white rounded-lg
+                       text-sm font-medium hover:bg-neutral-800 transition-colors"
           >
             Next →
           </button>
@@ -440,8 +443,6 @@ function NewArtifactForm({
   }
 
   // Step 3 — output-specific fields
-  // Reuse the same field components from IntakeForm by importing inline logic.
-  // For brevity these are inlined here since they are identical to IntakeForm Step 3.
 
   return (
     <div className="space-y-5">
@@ -486,8 +487,8 @@ function NewArtifactForm({
                     onClick={() => toggleAudience(a)}
                     className={`px-3 py-1.5 rounded-full text-xs border transition-colors ${
                       selected
-                        ? 'border-white bg-neutral-800 text-white'
-                        : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'
+                        ? 'border-neutral-900 bg-neutral-900 text-white'
+                        : 'border-neutral-200 text-neutral-600 hover:border-neutral-400'
                     }`}
                   >
                     {a}
@@ -647,7 +648,7 @@ function NewArtifactForm({
       )}
 
       {submitError && (
-        <p className="text-sm text-red-400 bg-red-950/30 border border-red-800
+        <p className="text-sm text-red-600 bg-red-50 border border-red-200
                       rounded-lg px-4 py-2">
           {submitError}
         </p>
@@ -656,7 +657,7 @@ function NewArtifactForm({
       <div className="flex justify-between pt-2">
         <button
           onClick={() => setStep(2)}
-          className="px-5 py-2.5 border border-neutral-700 text-neutral-300
+          className="px-5 py-2.5 border border-neutral-300 text-neutral-600
                      rounded-lg text-sm hover:border-neutral-500 transition-colors"
         >
           ← Back
@@ -664,8 +665,8 @@ function NewArtifactForm({
         <button
           onClick={handleSubmit}
           disabled={submitting}
-          className="px-5 py-2.5 bg-white text-neutral-900 rounded-lg text-sm
-                     font-medium hover:bg-neutral-100 transition-colors
+          className="px-5 py-2.5 bg-neutral-900 text-white rounded-lg text-sm
+                     font-medium hover:bg-neutral-800 transition-colors
                      disabled:opacity-50"
         >
           {submitting ? 'Generating…' : 'Submit and Generate'}
@@ -693,27 +694,27 @@ export function IntakeEditClient({
         <div className="mb-8">
           <Link
             href="/admin"
-            className="text-sm text-neutral-600 hover:text-neutral-400
+            className="text-sm text-neutral-500 hover:text-neutral-700
                       transition-colors flex items-center gap-1 mb-4"
           >
             ← Dashboard
           </Link>
-          <h1 className="text-xl font-semibold text-white">
+          <h1 className="text-xl font-semibold text-neutral-900">
             {researcher.full_name ?? researcher.email}
           </h1>
           <p className="text-sm text-neutral-500 mt-0.5">{researcher.email}</p>
           {researcher.institution && (
-            <p className="text-sm text-neutral-600 mt-0.5">{researcher.institution}</p>
+            <p className="text-sm text-neutral-400 mt-0.5">{researcher.institution}</p>
           )}
         </div>
 
         {/* Existing artifacts */}
         {artifacts.length > 0 && (
           <div className="mb-10">
-            <h2 className="text-sm font-medium text-neutral-300 mb-3">
+            <h2 className="text-sm font-medium text-neutral-700 mb-3">
               Existing outputs
             </h2>
-            <div className="border border-neutral-800 rounded-xl px-4">
+            <div className="border border-neutral-200 rounded-xl px-4">
               {artifacts.map((a) => (
                 <ArtifactListItem key={a.id} artifact={a} />
               ))}
@@ -722,14 +723,14 @@ export function IntakeEditClient({
         )}
 
         {/* Panel toggle */}
-        <div className="flex gap-1 p-1 bg-neutral-900 border border-neutral-800
+        <div className="flex gap-1 p-1 bg-neutral-50 border border-neutral-200
                         rounded-lg mb-6 w-fit">
           <button
             onClick={() => setActivePanel('identity')}
             className={`px-4 py-2 rounded text-sm transition-colors ${
               activePanel === 'identity'
-                ? 'bg-neutral-800 text-white'
-                : 'text-neutral-500 hover:text-neutral-300'
+                ? 'bg-white text-neutral-900 shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
             Edit researcher info
@@ -738,8 +739,8 @@ export function IntakeEditClient({
             onClick={() => setActivePanel('new')}
             className={`px-4 py-2 rounded text-sm transition-colors ${
               activePanel === 'new'
-                ? 'bg-neutral-800 text-white'
-                : 'text-neutral-500 hover:text-neutral-300'
+                ? 'bg-white text-neutral-900 shadow-sm'
+                : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
             + New output
@@ -747,10 +748,10 @@ export function IntakeEditClient({
         </div>
 
         {/* Active panel */}
-        <div className="border border-neutral-800 rounded-xl p-6">
+        <div className="border border-neutral-200 rounded-xl p-6">
           {activePanel === 'identity' ? (
             <>
-              <h2 className="text-sm font-medium text-neutral-300 mb-5">
+              <h2 className="text-sm font-medium text-neutral-700 mb-5">
                 Researcher identity
               </h2>
               <IdentityEditor
@@ -760,7 +761,7 @@ export function IntakeEditClient({
             </>
           ) : (
             <>
-              <h2 className="text-sm font-medium text-neutral-300 mb-5">
+              <h2 className="text-sm font-medium text-neutral-700 mb-5">
                 New output
               </h2>
               <NewArtifactForm

@@ -1,8 +1,8 @@
 'use client'
 import { SHORT_TEXT_FIELDS } from '@/lib/constants'
 
-const inputClass = `w-full bg-neutral-800 border border-neutral-700 rounded-md
-  px-3 py-2 text-sm text-white placeholder-neutral-600
+const inputClass = `w-full bg-white border border-neutral-300 rounded-md
+  px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400
   focus:outline-none focus:border-neutral-500 transition-colors`
 
 const textareaClass = `${inputClass} resize-none`
@@ -23,7 +23,7 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
     const isShort = SHORT_TEXT_FIELDS.has(fieldKey)
     return (
       <div className="space-y-1">
-        <label className="block text-xs font-medium text-neutral-400">{label}</label>
+        <label className="block text-xs font-medium text-neutral-500">{label}</label>
         {isShort ? (
           <input
             className={inputClass}
@@ -47,7 +47,7 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
     const arr = value as string[]
     return (
       <div className="space-y-1">
-        <label className="block text-xs font-medium text-neutral-400">{label}</label>
+        <label className="block text-xs font-medium text-neutral-500">{label}</label>
         <div className="space-y-1.5">
           {arr.map((item, i) => (
             <div key={i} className="flex gap-2">
@@ -62,7 +62,7 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
               />
               <button
                 onClick={() => onChange(fieldKey, arr.filter((_, j) => j !== i))}
-                className="px-2 text-neutral-600 hover:text-red-400 transition-colors
+                className="px-2 text-neutral-400 hover:text-red-500 transition-colors
                            text-lg leading-none shrink-0"
               >
                 ×
@@ -71,7 +71,7 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
           ))}
           <button
             onClick={() => onChange(fieldKey, [...arr, ''])}
-            className="text-xs text-neutral-500 hover:text-neutral-300
+            className="text-xs text-neutral-500 hover:text-neutral-700
                        transition-colors mt-1"
           >
             + Add item
@@ -86,18 +86,18 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
     const arr = value as Record<string, string>[]
     return (
       <div className="space-y-1">
-        <label className="block text-xs font-medium text-neutral-400">{label}</label>
+        <label className="block text-xs font-medium text-neutral-500">{label}</label>
         <div className="space-y-3">
           {arr.map((item, i) => (
             <div
               key={i}
-              className="border border-neutral-700 rounded-lg p-3 space-y-2"
+              className="border border-neutral-200 rounded-lg p-3 space-y-2"
             >
               <div className="flex justify-between items-center">
                 <span className="text-xs text-neutral-500">Item {i + 1}</span>
                 <button
                   onClick={() => onChange(fieldKey, arr.filter((_, j) => j !== i))}
-                  className="text-xs text-neutral-600 hover:text-red-400 transition-colors"
+                  className="text-xs text-neutral-400 hover:text-red-500 transition-colors"
                 >
                   Remove
                 </button>
@@ -128,7 +128,7 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
                 : { value: '' }
               onChange(fieldKey, [...arr, template])
             }}
-            className="text-xs text-neutral-500 hover:text-neutral-300 transition-colors"
+            className="text-xs text-neutral-500 hover:text-neutral-700 transition-colors"
           >
             + Add item
           </button>
@@ -140,7 +140,7 @@ export function ContentFieldEditor({ fieldKey, value, onChange }: Props) {
   // Fallback for booleans or unknown types
   return (
     <div className="space-y-1">
-      <label className="block text-xs font-medium text-neutral-400">{label}</label>
+      <label className="block text-xs font-medium text-neutral-500">{label}</label>
       <input
         className={inputClass}
         value={String(value ?? '')}

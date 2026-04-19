@@ -29,18 +29,16 @@ export default async function PublicArtifactPage({
     string,
     { content: Record<string, unknown> }
   >
-  const ctaContent = sections?.cta?.content as
-    | Record<string, string>
-    | undefined
+  const ctaContent = sections?.cta?.content as Record<string, string> | undefined
   const ctaText = ctaContent?.call_to_action
 
   return (
-    <div>
+    <div className="animate-fade-in">
       <ShareBanner slug={slug} />
-      <main className="max-w-3xl mx-auto px-4 sm:px-6">
-        <PublicPage artifact={artifact as Artifact} />
+      <PublicPage artifact={artifact as Artifact} />
+      <div className="max-w-5xl mx-auto px-4 sm:px-8 pb-12">
         <CTAFooter ctaText={ctaText} />
-      </main>
+      </div>
     </div>
   )
 }
