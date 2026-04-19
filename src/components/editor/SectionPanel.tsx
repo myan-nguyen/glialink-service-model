@@ -194,6 +194,16 @@ export function SectionPanel({
                         }
                       />
                     ))}
+                    {/* Lab link lives in discoverability but is edited from the header */}
+                    {selectedSection === 'header' && outputType === 'researcher_profile' && (
+                      <ContentFieldEditor
+                        fieldKey="lab_link"
+                        value={sections.discoverability?.content?.lab_link ?? ''}
+                        onChange={(_field, val) =>
+                          updateSectionContent('discoverability', 'lab_link', val)
+                        }
+                      />
+                    )}
                   </div>
                 </div>
               ) : (

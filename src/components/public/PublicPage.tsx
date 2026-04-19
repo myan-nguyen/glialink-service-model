@@ -101,9 +101,20 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
   }
 
   if (artifact.output_type === 'researcher_profile') {
+    const disc = s.discoverability?.content as {
+      website_links?: string[]
+      publication_links?: string[]
+      lab_link?: string
+    } | undefined
+    const headerLinks = [
+      ...(disc?.website_links ?? []),
+      ...(disc?.publication_links ?? []),
+      ...(disc?.lab_link ? [disc.lab_link] : []),
+    ]
+
     return (
       <article>
-        <ResearcherHeader content={get(s, 'header')} />
+        <ResearcherHeader content={get(s, 'header')} links={headerLinks} />
         <ResearcherIdentity content={get(s, 'identity')} />
 
         <TileGrid columns={3} tileHeight="h-64">

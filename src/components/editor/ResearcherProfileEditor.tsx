@@ -152,8 +152,20 @@ function SectionEditorIdentity({ content, onChange }: {
   content: Record<string, unknown>
   onChange: (c: Record<string, unknown>) => void
 }) {
-  const c = content as { name?: string; role?: string; institution?: string; group?: string; fieldDescriptor?: string }
+  const c = content as {
+    name?: string; role?: string; institution?: string; group?: string; fieldDescriptor?: string
+    links?: Array<{ label: string; url: string }>
+  }
   const u = (k: string) => (v: string) => onChange({ ...c, [k]: v })
+  const links = c.links ?? []
+  const updateLink = (i: number, patch: Partial<{ label: string; url: string }>) => {
+    const next = [...links]
+    next[i] = { ...next[i], ...patch }
+    onChange({ ...c, links: next })
+  }
+  const addLink = () => onChange({ ...c, links: [...links, { label: '', url: '' }] })
+  const removeLink = (i: number) => onChange({ ...c, links: links.filter((_, j) => j !== i) })
+
   return (
     <div className="space-y-3">
       {(['name', 'role', 'institution', 'group', 'fieldDescriptor'] as const).map((k) => (
@@ -162,6 +174,38 @@ function SectionEditorIdentity({ content, onChange }: {
           <TextInput value={c[k] ?? ''} onChange={u(k)} placeholder={k} />
         </div>
       ))}
+
+      <div>
+        <FieldLabel>Links</FieldLabel>
+        <div className="space-y-2">
+          {links.map((link, i) => (
+            <div key={i} className="border border-neutral-200 rounded p-2 space-y-1.5">
+              <div className="flex justify-end">
+                <button
+                  onClick={() => removeLink(i)}
+                  className="text-xs text-neutral-300 hover:text-neutral-500 transition-colors"
+                >
+                  Remove
+                </button>
+              </div>
+              <div>
+                <FieldLabel>Label</FieldLabel>
+                <TextInput value={link.label} onChange={(v) => updateLink(i, { label: v })} placeholder="e.g. Lab website" />
+              </div>
+              <div>
+                <FieldLabel>URL</FieldLabel>
+                <TextInput value={link.url} onChange={(v) => updateLink(i, { url: v })} placeholder="https://…" />
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={addLink}
+            className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
+          >
+            + Add link
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

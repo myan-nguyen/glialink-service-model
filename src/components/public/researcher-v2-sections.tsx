@@ -70,6 +70,23 @@ export function V2Identity({ content }: { content: IdentityContent }) {
             {content.fieldDescriptor}
           </p>
         )}
+        {content.links && content.links.length > 0 && (
+          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
+            {content.links.map((link, i) => (
+              <a
+                key={i}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm font-serif text-brand hover:text-brand-dark
+                           underline underline-offset-2 decoration-brand/30
+                           hover:decoration-brand transition-colors"
+              >
+                {link.label || link.url} ↗
+              </a>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )
@@ -78,7 +95,6 @@ export function V2Identity({ content }: { content: IdentityContent }) {
 // ─── About (work statement) ───────────────────────────────────────────────────
 
 export function V2WorkStatement({ content }: { content: WorkStatementContent }) {
-  const refs = content.inlineReferences?.filter((r) => r.url || r.label)
   return (
     <Card sectionKey="workStatement">
       <CardLabel>About</CardLabel>
@@ -89,27 +105,6 @@ export function V2WorkStatement({ content }: { content: WorkStatementContent }) 
           </p>
         ))}
       </div>
-      {refs && refs.length > 0 && (
-        <div className="mt-6 pt-5 border-t border-surface-border space-y-1.5">
-          {refs.map((r, i) => (
-            <p key={i} className="text-sm font-serif text-ink-muted">
-              {r.url ? (
-                <a
-                  href={r.url}
-                  className="underline underline-offset-2 decoration-surface-border
-                             hover:decoration-ink-muted transition-colors"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {r.label}
-                </a>
-              ) : (
-                r.label
-              )}
-            </p>
-          ))}
-        </div>
-      )}
     </Card>
   )
 }

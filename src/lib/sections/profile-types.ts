@@ -6,6 +6,7 @@ export interface IdentityContent {
   institution: string
   group: string
   fieldDescriptor: string
+  links?: Array<{ label: string; url: string }>
 }
 
 export interface InlineReference {

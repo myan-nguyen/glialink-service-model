@@ -1,5 +1,4 @@
 import {
-  FullBleed,
   WideSection,
   Tile,
   SectionLabel,
@@ -11,58 +10,83 @@ import {
   Quote,
 } from './shared'
 
-// ─── Full-bleed header ──────────────────────────────────────────────────────
+// ─── Hero header ──────────────────────────────────────────────────────────────
 
 export function ResearcherHeader({
   content,
+  links = [],
 }: {
   content: Record<string, string>
+  links?: string[]
 }) {
   const initials = (content.researcher_name ?? 'R')
     .split(' ')
-    .map((s) => s[0])
+    .map((s: string) => s[0])
     .filter(Boolean)
     .slice(0, 2)
     .join('')
     .toUpperCase()
 
   return (
-    <FullBleed sectionKey="header" className="pt-10 sm:pt-14 pb-8 bg-brand-ghost">
-      <div className="flex items-start gap-5 sm:gap-8">
-        <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full bg-white
-                        border-2 border-brand-pale flex items-center justify-center
-                        shrink-0">
-          <span className="font-display text-3xl sm:text-4xl font-bold text-brand">
-            {initials}
-          </span>
-        </div>
-        <div className="min-w-0 flex-1 pt-1">
-          <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
-                         leading-[1.05] tracking-tight">
-            {content.researcher_name || 'Researcher'}
-          </h1>
-          {content.role_career_stage && (
-            <p className="mt-3 text-base sm:text-lg font-semibold text-ink-light">
-              {content.role_career_stage}
-            </p>
-          )}
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1
-                          text-sm text-ink-muted font-serif">
-            {content.institution && <span>{content.institution}</span>}
-            {content.department_or_lab && (
-              <span className="text-ink-subtle">·</span>
-            )}
-            {content.department_or_lab && <span>{content.department_or_lab}</span>}
+    <section data-section-key="header" className="w-full bg-brand-ghost pt-12 sm:pt-16 pb-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8">
+        <div className="flex items-start gap-5 sm:gap-8">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white
+                          border border-surface-border flex items-center justify-center
+                          shrink-0">
+            <span className="font-display text-2xl sm:text-3xl font-bold text-brand">
+              {initials}
+            </span>
           </div>
-          {content.field_and_subfield && (
-            <p className="mt-4 inline-block px-3 py-1 text-xs font-medium
-                          bg-white text-brand-dark rounded-full border border-brand-pale">
-              {content.field_and_subfield}
-            </p>
-          )}
+          <div className="min-w-0 flex-1 pt-1">
+            <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
+                           leading-[1.05] tracking-tight">
+              {content.researcher_name || 'Researcher'}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1
+                            text-base sm:text-lg font-serif text-ink-light">
+              {content.role_career_stage && (
+                <span className="font-semibold">{content.role_career_stage}</span>
+              )}
+              {content.institution && (
+                <>
+                  {content.role_career_stage && <span className="text-ink-subtle">·</span>}
+                  <span>{content.institution}</span>
+                </>
+              )}
+              {content.department_or_lab && (
+                <>
+                  <span className="text-ink-subtle">·</span>
+                  <span className="text-ink-muted">{content.department_or_lab}</span>
+                </>
+              )}
+            </div>
+            {content.field_and_subfield && (
+              <p className="mt-1.5 text-base font-serif text-ink-muted">
+                {content.field_and_subfield}
+              </p>
+            )}
+            {links.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
+                {links.map((url, i) => (
+                  <a
+                    key={i}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm font-serif text-brand hover:text-brand-dark
+                               underline underline-offset-2 decoration-brand/30
+                               hover:decoration-brand transition-colors"
+                  >
+                    {url} ↗
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </FullBleed>
+    </section>
   )
 }
 
@@ -83,11 +107,11 @@ export function ResearcherIdentity({
     <WideSection sectionKey="identity">
       <SectionLabel>About</SectionLabel>
       {content.mission_statement && (
-        <div className="mb-5 max-w-3xl">
+        <div className="mb-5">
           <Pullquote>{content.mission_statement}</Pullquote>
         </div>
       )}
-      <div className="space-y-3 max-w-3xl">
+      <div className="space-y-3">
         {content.identity_statement && <Prose>{content.identity_statement}</Prose>}
         {content.plain_language_research_description && (
           <Prose>{content.plain_language_research_description}</Prose>
@@ -103,7 +127,7 @@ export function ExpertiseSection({
   content: { methods_expertise?: string[]; domain_expertise?: string[] }
 }) {
   const hasMethods = content.methods_expertise?.length
-  const hasDomain = content.domain_expertise?.length
+  const hasDomain  = content.domain_expertise?.length
   if (!hasMethods && !hasDomain) return null
   return (
     <WideSection sectionKey="expertise">
@@ -133,6 +157,22 @@ export function ExpertiseSection({
   )
 }
 
+// ─── Selected projects with status indicator ─────────────────────────────────
+
+function projectStatusColor(status: string): string {
+  const s = status.toLowerCase()
+  if (
+    s.includes('terminat') ||
+    s.includes('complet') ||
+    s.includes('publish') ||
+    s.includes('ended') ||
+    s.includes('closed')
+  ) {
+    return 'bg-red-400'
+  }
+  return 'bg-green-400'
+}
+
 export function SelectedProjects({
   content,
 }: {
@@ -156,18 +196,19 @@ export function SelectedProjects({
             className="border border-surface-border rounded-xl p-5
                        hover:border-brand-light transition-colors"
           >
-            <div className="flex items-start justify-between gap-3 mb-2">
-              <h3 className="font-display font-semibold text-ink text-base
-                             leading-snug">
-                {p.project_title}
-              </h3>
-              {p.current_status && (
-                <span className="shrink-0 px-2 py-0.5 text-[11px] bg-brand-pale
-                                 text-brand-dark rounded-full font-medium whitespace-nowrap">
+            {p.current_status && (
+              <div className="flex items-center gap-2 mb-3">
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${projectStatusColor(p.current_status)}`}
+                />
+                <span className="text-xs font-serif text-ink-muted truncate">
                   {p.current_status}
                 </span>
-              )}
-            </div>
+              </div>
+            )}
+            <h3 className="font-display font-semibold text-ink text-base leading-snug mb-2">
+              {p.project_title}
+            </h3>
             <p className="text-sm text-ink-light leading-relaxed">
               {p.short_description}
             </p>
@@ -179,10 +220,7 @@ export function SelectedProjects({
 }
 
 export function HumanLayer({ content }: { content: Record<string, string> }) {
-  if (
-    !content.researcher_perspective_quote &&
-    !content.working_style_or_values
-  )
+  if (!content.researcher_perspective_quote && !content.working_style_or_values)
     return null
   return (
     <WideSection sectionKey="human_layer">
@@ -194,8 +232,7 @@ export function HumanLayer({ content }: { content: Record<string, string> }) {
         />
       )}
       {content.working_style_or_values && (
-        <p className="mt-5 text-[0.975rem] text-ink-muted leading-relaxed italic
-                      max-w-2xl">
+        <p className="mt-5 text-[0.975rem] text-ink-muted leading-relaxed italic max-w-2xl">
           {content.working_style_or_values}
         </p>
       )}
@@ -203,7 +240,7 @@ export function HumanLayer({ content }: { content: Record<string, string> }) {
   )
 }
 
-// ─── Tile content pieces ────────────────────────────────────────────────────
+// ─── Tile content pieces ──────────────────────────────────────────────────────
 
 export function TileResearchThemes({
   content,
@@ -233,6 +270,7 @@ export function TileCurrentFocus({
   )
 }
 
+// Keywords only — links have moved to the header
 export function TileDiscoverability({
   content,
 }: {
@@ -243,39 +281,11 @@ export function TileDiscoverability({
     lab_link?: string
   }
 }) {
-  const hasLinks =
-    content.website_links?.length ||
-    content.publication_links?.length ||
-    content.lab_link
-  if (!content.keywords_tags?.length && !hasLinks) return null
+  if (!content.keywords_tags?.length) return null
   return (
     <Tile sectionKey="discoverability">
-      <SectionLabel>Links & Keywords</SectionLabel>
-      {content.keywords_tags?.length && (
-        <div className="mb-4">
-          <TagList tags={content.keywords_tags} />
-        </div>
-      )}
-      {hasLinks && (
-        <div className="space-y-1.5">
-          {[
-            ...(content.website_links ?? []),
-            ...(content.publication_links ?? []),
-            ...(content.lab_link ? [content.lab_link] : []),
-          ].map((url, i) => (
-            <a
-              key={i}
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-xs text-brand hover:text-brand-dark
-                         transition-colors truncate"
-            >
-              {url} ↗
-            </a>
-          ))}
-        </div>
-      )}
+      <SectionLabel>Keywords</SectionLabel>
+      <TagList tags={content.keywords_tags} />
     </Tile>
   )
 }
@@ -294,7 +304,7 @@ export function TileSelectedOutputs({
       <div className="space-y-2.5 mt-2">
         {content.outputs.map((o, i) => (
           <div key={i}>
-            <p className="text-[10px] text-brand uppercase tracking-wider
+            <p className="text-[10px] text-brand-dark uppercase tracking-wider
                           font-display font-semibold mb-0.5">
               {o.type}
             </p>
@@ -327,22 +337,18 @@ export function TileResearcherAsks({
   if (!content.primary_needs && !content.secondary_needs) return null
   return (
     <Tile sectionKey="asks">
-      <SectionLabel>What I'm Looking For</SectionLabel>
+      <SectionLabel>What I&apos;m Looking For</SectionLabel>
       <div className="space-y-3 mt-2">
         {content.primary_needs && (
           <div>
             <p className="text-xs font-semibold text-ink-light mb-1">Primary</p>
-            <p className="text-sm text-ink-light leading-relaxed">
-              {content.primary_needs}
-            </p>
+            <p className="text-sm text-ink-light leading-relaxed">{content.primary_needs}</p>
           </div>
         )}
         {content.secondary_needs && (
           <div>
             <p className="text-xs font-semibold text-ink-light mb-1">Secondary</p>
-            <p className="text-sm text-ink-muted leading-relaxed">
-              {content.secondary_needs}
-            </p>
+            <p className="text-sm text-ink-muted leading-relaxed">{content.secondary_needs}</p>
           </div>
         )}
       </div>

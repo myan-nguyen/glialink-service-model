@@ -146,10 +146,10 @@ export function TagList({
       {tags.map((tag) => (
         <span
           key={tag}
-          className={`px-3 py-1 text-xs font-serif rounded-full border
+          className={`px-3 py-1.5 text-xs font-serif rounded-lg border
                       transition-colors ${
             accent
-              ? 'bg-brand-pale border-brand-pale text-brand-dark'
+              ? 'bg-transparent border-brand-dark text-ink'
               : 'bg-surface-tint border-surface-border text-ink-muted'
           }`}
         >
