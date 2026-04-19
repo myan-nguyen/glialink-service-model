@@ -1,5 +1,6 @@
+'use client'
+import { useState } from 'react'
 import {
-  FullBleed,
   WideSection,
   Tile,
   SectionLabel,
@@ -9,42 +10,43 @@ import {
   TagList,
   BulletList,
   Quote,
-  AskCard,
 } from './shared'
 
 // ─── Full-bleed header ──────────────────────────────────────────────────────
 
 export function ProjectHeader({ content }: { content: Record<string, string> }) {
   return (
-    <FullBleed sectionKey="header" className="pt-10 sm:pt-14 pb-6 bg-brand-ghost">
-      {content.project_type_label && (
-        <p className="text-[11px] font-display font-semibold tracking-[0.18em]
-                      uppercase text-brand mb-5">
-          {content.project_type_label}
-        </p>
-      )}
-      <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
-                     leading-[1.1] mb-5 tracking-tight max-w-4xl">
-        {content.project_title || 'Untitled Project'}
-      </h1>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm
-                      text-ink-muted font-serif">
-        {content.researcher_name && (
-          <span className="font-semibold text-ink-light">
-            {content.researcher_name}
-          </span>
+    <section className="w-full pt-10 sm:pt-14 pb-6 bg-brand-ghost">
+      <div className="max-w-5xl mx-auto px-4 sm:px-8">
+        {content.project_type_label && (
+          <p className="text-[11px] font-display font-semibold tracking-[0.18em]
+                        uppercase text-brand mb-5">
+            {content.project_type_label}
+          </p>
         )}
-        {content.researcher_role && <span className="text-ink-subtle">·</span>}
-        {content.researcher_role && <span>{content.researcher_role}</span>}
-        {content.institution && <span className="text-ink-subtle">·</span>}
-        {content.institution && <span>{content.institution}</span>}
+        <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
+                       leading-[1.1] mb-5 tracking-tight break-words">
+          {content.project_title || 'Untitled Project'}
+        </h1>
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base
+                        text-ink-muted font-serif">
+          {content.researcher_name && (
+            <span className="font-semibold text-ink-light">
+              {content.researcher_name}
+            </span>
+          )}
+          {content.researcher_role && <span className="text-ink-subtle">·</span>}
+          {content.researcher_role && <span>{content.researcher_role}</span>}
+          {content.institution && <span className="text-ink-subtle">·</span>}
+          {content.institution && <span>{content.institution}</span>}
+        </div>
+        {content.department_or_lab && (
+          <p className="text-base text-ink-muted font-serif mt-1">
+            {content.department_or_lab}
+          </p>
+        )}
       </div>
-      {content.department_or_lab && (
-        <p className="text-sm text-ink-muted font-serif mt-1">
-          {content.department_or_lab}
-        </p>
-      )}
-    </FullBleed>
+    </section>
   )
 }
 
@@ -57,11 +59,11 @@ export function CurrentStagePill({
 }) {
   if (!content.current_stage) return null
   return (
-    <WideSection sectionKey="current_stage" className="py-4">
-      <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-pale
-                      rounded-full">
-        <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-        <span className="text-xs font-serif text-brand-dark font-medium">
+    <WideSection sectionKey="current_stage" className="pt-5 pb-3">
+      <div className="inline-flex items-center gap-2 px-4 py-2 border
+                      border-brand-dark rounded-lg">
+        <span className="w-2 h-2 rounded-full bg-brand-dark animate-pulse" />
+        <span className="text-sm font-serif text-brand-dark font-medium">
           {content.current_stage}
         </span>
       </div>
@@ -72,7 +74,7 @@ export function CurrentStagePill({
 export function ProjectSummary({ content }: { content: Record<string, string> }) {
   if (!content.one_sentence_summary) return null
   return (
-    <WideSection sectionKey="summary">
+    <WideSection sectionKey="summary" className="pt-3 pb-2">
       <Pullquote>{content.one_sentence_summary}</Pullquote>
     </WideSection>
   )
@@ -81,10 +83,10 @@ export function ProjectSummary({ content }: { content: Record<string, string> })
 export function WhyThisMatters({ content }: { content: Record<string, string> }) {
   if (!content.relevance && !content.urgency && !content.context) return null
   return (
-    <WideSection sectionKey="why_this_matters">
+    <WideSection sectionKey="why_this_matters" className="pt-5 pb-8">
       <SectionLabel>Background</SectionLabel>
       <SectionTitle>Why this matters</SectionTitle>
-      <div className="space-y-3 max-w-3xl">
+      <div className="space-y-3">
         {content.relevance && <Prose>{content.relevance}</Prose>}
         {content.urgency && <Prose>{content.urgency}</Prose>}
         {content.context && <Prose>{content.context}</Prose>}
@@ -100,12 +102,12 @@ export function ResearchFocus({ content }: { content: Record<string, string> }) 
       <SectionLabel>Research Question</SectionLabel>
       {content.research_question && (
         <h2 className="font-display text-xl sm:text-2xl italic text-ink
-                       leading-snug mb-5 max-w-3xl">
+                       leading-snug mb-5">
           {content.research_question}
         </h2>
       )}
       {content.project_description && (
-        <Prose className="max-w-3xl">{content.project_description}</Prose>
+        <Prose>{content.project_description}</Prose>
       )}
     </WideSection>
   )
@@ -138,7 +140,7 @@ export function FiguresEvidence({
                           uppercase text-brand">
               {fig.figure_label}
             </p>
-            <h3 className="font-display font-semibold text-ink text-base leading-snug">
+            <h3 className="font-display font-semibold text-ink text-base leading-snug break-words">
               {fig.figure_title}
             </h3>
             {fig.figure_caption && (
@@ -159,18 +161,110 @@ export function FiguresEvidence({
   )
 }
 
-export function ProjectAsks({ content }: { content: Record<string, string> }) {
-  if (!content.ask_title && !content.ask_description) return null
+// ─── Ask card with native share ─────────────────────────────────────────────
+
+function ProjectAskCard({
+  number,
+  title,
+  description,
+  bestFit,
+}: {
+  number: number
+  title?: string
+  description?: string
+  bestFit?: string
+}) {
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    const url = window.location.href
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({ title: title ?? 'Research ask', url })
+        return
+      } catch {
+        // user cancelled or API unavailable — fall through to clipboard
+      }
+    }
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  if (!title && !description) return null
+  return (
+    <div className="bg-white border border-surface-border rounded-xl p-5 sm:p-6
+                    hover:border-brand-light transition-colors">
+      <div className="flex items-start gap-4">
+        <span className="font-display text-xs text-ink-subtle font-semibold
+                         tracking-wider pt-1 shrink-0">
+          {String(number).padStart(2, '0')}
+        </span>
+        <div className="flex-1 min-w-0 space-y-2.5">
+          {title && (
+            <h3 className="font-display font-semibold text-ink text-lg leading-snug break-words">
+              {title}
+            </h3>
+          )}
+          {description && (
+            <p className="text-[0.975rem] text-ink-light leading-relaxed">
+              {description}
+            </p>
+          )}
+          {bestFit && (
+            <p className="text-sm text-ink-muted font-serif pt-1">
+              <span className="font-semibold text-ink-light">Best fit: </span>
+              {bestFit}
+            </p>
+          )}
+          <button
+            onClick={handleShare}
+            className="mt-2 inline-flex items-center gap-1.5 text-xs text-ink-muted
+                       hover:text-brand transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="w-3.5 h-3.5 shrink-0"
+            >
+              <path d="M13 4.5a2.5 2.5 0 1 1 .702 1.737L6.97 9.604a2.518 2.518 0 0 1 0 .793l6.733 3.367a2.5 2.5 0 1 1-.671 1.341l-6.733-3.367a2.5 2.5 0 1 1 0-3.475l6.733-3.367A2.52 2.52 0 0 1 13 4.5Z" />
+            </svg>
+            {copied ? 'Link copied!' : 'Share this ask'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+type AskItem = { ask_title?: string; ask_description?: string; best_fit_people?: string }
+
+export function ProjectAsks({ content }: { content: Record<string, unknown> }) {
+  // Support new (items array) and old (flat string fields) formats
+  const items: AskItem[] = Array.isArray((content as { items?: unknown }).items) && (content as { items: AskItem[] }).items.length > 0
+    ? (content as { items: AskItem[] }).items
+    : (content.ask_title || content.ask_description)
+      ? [{ ask_title: content.ask_title as string, ask_description: content.ask_description as string, best_fit_people: content.best_fit_people as string }]
+      : []
+
+  if (items.length === 0) return null
+
   return (
     <WideSection sectionKey="asks" className="bg-brand-ghost">
       <SectionLabel>Specific Asks · Collaboration Opportunities</SectionLabel>
       <SectionTitle>How others can help extend this research</SectionTitle>
-      <AskCard
-        number={1}
-        title={content.ask_title}
-        description={content.ask_description}
-        bestFit={content.best_fit_people}
-      />
+      <div className="space-y-4">
+        {items.map((item, i) => (
+          <ProjectAskCard
+            key={i}
+            number={i + 1}
+            title={item.ask_title}
+            description={item.ask_description}
+            bestFit={item.best_fit_people}
+          />
+        ))}
+      </div>
     </WideSection>
   )
 }
@@ -240,8 +334,8 @@ export function TilePotentialImpact({
         {content.outcomes.map((outcome, i) => (
           <span
             key={i}
-            className="px-3 py-1.5 text-xs bg-brand-pale text-brand-dark
-                       rounded-full font-medium"
+            className="px-3 py-1.5 text-xs border border-brand-dark text-brand-dark
+                       rounded-lg font-medium break-words max-w-full"
           >
             {outcome}
           </span>

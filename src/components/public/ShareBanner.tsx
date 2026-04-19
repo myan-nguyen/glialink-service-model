@@ -1,5 +1,6 @@
 'use client'
 import { useState } from 'react'
+import Link from 'next/link'
 
 export function ShareBanner({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false)
@@ -13,10 +14,18 @@ export function ShareBanner({ slug }: { slug: string }) {
 
   return (
     <div className="border-b border-canvas-border bg-canvas-soft">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2.5 flex items-center
+      <div className="w-full px-4 sm:px-8 py-2.5 flex items-center
                       justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs text-ink-muted font-sans shrink-0">
+        <div className="flex items-center gap-3 min-w-0">
+          <Link
+            href="/admin"
+            className="shrink-0 text-xs text-ink-muted font-sans
+                       hover:text-ink transition-colors"
+          >
+            ← Dashboard
+          </Link>
+          <span className="text-ink-subtle hidden sm:block">·</span>
+          <span className="text-xs text-ink-muted font-sans shrink-0 hidden sm:block">
             Share this page
           </span>
           <span className="text-xs text-ink-subtle font-mono truncate

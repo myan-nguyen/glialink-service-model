@@ -94,8 +94,8 @@ export function Tile({
 
 export function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <p className="text-[11px] font-display font-semibold tracking-[0.18em]
-                  uppercase text-brand mb-3">
+    <p className="text-xs font-display font-semibold tracking-[0.18em]
+                  uppercase text-brand-dark mb-3">
       {children}
     </p>
   )
@@ -103,8 +103,8 @@ export function SectionLabel({ children }: { children: React.ReactNode }) {
 
 export function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="font-display text-xl sm:text-2xl font-semibold text-ink
-                   leading-tight mb-3 tracking-tight">
+    <h2 className="font-display text-2xl sm:text-3xl font-semibold text-ink
+                   leading-tight mb-4 tracking-tight">
       {children}
     </h2>
   )

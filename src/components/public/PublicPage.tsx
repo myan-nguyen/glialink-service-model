@@ -42,6 +42,7 @@ import {
   TileLabOffers,
   TileProofVisibility,
 } from './lab-sections'
+import { ResearcherProfileV2Page } from './ResearcherProfileV2Page'
 
 function get(
   sections: Record<string, { content: Record<string, unknown> }>,
@@ -51,6 +52,18 @@ function get(
 }
 
 export function PublicPage({ artifact }: { artifact: Artifact }) {
+  // v2 researcher profiles use a different schema — route before the old renderer
+  if (
+    artifact.output_type === 'researcher_profile' &&
+    (artifact.sections as Record<string, unknown>)?._v2 === true
+  ) {
+    return (
+      <ResearcherProfileV2Page
+        artifact={artifact as Artifact & { slug: string }}
+      />
+    )
+  }
+
   const s = artifact.sections as Record<
     string,
     { content: Record<string, unknown> }
@@ -116,28 +129,22 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
 
   if (artifact.output_type === 'lab_profile') {
     return (
-      <article>
+      <article className="min-h-screen bg-surface-tint">
         <LabHeader content={get(s, 'header')} />
-        <LabSummary content={get(s, 'summary')} />
-
-        <TileGrid columns={3} tileHeight="h-64">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 space-y-4 pb-16">
+          <LabSummary content={get(s, 'summary')} />
           <TileResearchAreas content={get(s, 'research_areas')} />
           <TileCurrentDirections content={get(s, 'current_directions')} />
           <TileCapabilities content={get(s, 'capabilities')} />
-        </TileGrid>
-
-        <FlagshipProjects content={get(s, 'flagship_projects')} />
-        <TeamFit content={get(s, 'team_fit')} />
-        <Opportunities content={get(s, 'opportunities')} />
-
-        <TileGrid columns={3} tileHeight="h-72">
+          <FlagshipProjects content={get(s, 'flagship_projects')} />
+          <TeamFit content={get(s, 'team_fit')} />
+          <Opportunities content={get(s, 'opportunities')} />
           <TileLabAsks content={get(s, 'asks')} />
           <TileLabOffers content={get(s, 'what_the_lab_offers')} />
           <TileProofVisibility content={get(s, 'proof_visibility')} />
-        </TileGrid>
-
-        <LabHumanLayer content={get(s, 'human_layer')} />
-        <CustomSections sections={customSections} />
+          <LabHumanLayer content={get(s, 'human_layer')} />
+          <CustomSections sections={customSections} />
+        </div>
       </article>
     )
   }

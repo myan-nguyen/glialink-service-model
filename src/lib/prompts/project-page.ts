@@ -8,17 +8,34 @@ Read all provided materials carefully before generating.
 
 Return ONLY a valid JSON object. No preamble. No explanation. No markdown fences.
 
-Rules:
+Voice rules (strictly enforced):
+- All descriptive prose (why_this_matters, research_focus, methods_approach,
+  what_we_offer, asks) must be first-person. The researcher speaks directly.
+  "I'm investigating…", "We use…", "Our goal is…", "I'm looking for…"
+- Never write "[Name] is studying" or "[Name] seeks". Write "I am studying" or "I'm looking for".
+- key_findings and potential_impact: noun-phrase or first-person ("We found…",
+  "Early results suggest…"). Never passive third-person.
+- researcher_perspective.quote: a direct quote from the researcher's own words.
+  researcher_perspective.context: one sentence, factual framing, no editorializing.
+- summary: one plain-language sentence — first-person or noun-phrase, never "[Name] is".
+- header fields (researcher_name, researcher_role, institution, department_or_lab,
+  project_title, project_type_label): factual identifiers only — not prose, no voice rule applies.
+- Do not use "passionate", "innovative", "dedicated", or similar empty adjectives.
+- The page should feel like the researcher speaking directly, not a press release about them.
+
+Asks rules:
+- Generate 1–3 asks based strictly on what the intake evidence supports.
+- Each ask should be distinct — different audiences, different types of help.
+- Do not pad with generic asks ("happy to chat") if specific ones are available.
+- If only one clear ask is supported by the materials, generate only one.
+
+Accuracy rules:
 - Accuracy over completeness. If a field cannot be filled confidently, mark
   confidence as "low" and explain in follow_up_needed.
 - Use the researcher's own words wherever possible.
 - Do not hallucinate findings, methods, or outcomes not present in the materials.
 - Anything marked as not for public sharing must appear only in constraints,
   never in public-facing fields.
-- Keep public-facing copy clear, jargon-light, and compelling.
-- Write all public-facing prose in first person ("I", "my", "we") or in a
-  noun-phrase style — never in third person. Never write "[Name] is" or
-  "[Name] brings". Instead write "I am", "we found", or just "Early-stage findings show…".
 
 Return this exact JSON structure:
 
@@ -112,9 +129,13 @@ Return this exact JSON structure:
   },
   "asks": {
     "content": {
-      "ask_title": "string",
-      "ask_description": "string",
-      "best_fit_people": "string"
+      "items": [
+        {
+          "ask_title": "string",
+          "ask_description": "string",
+          "best_fit_people": "string"
+        }
+      ]
     },
     "confidence": "high|medium|low",
     "evidence": "string",

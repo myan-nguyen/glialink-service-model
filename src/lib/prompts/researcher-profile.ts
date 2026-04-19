@@ -8,87 +8,108 @@ Read all provided materials carefully before generating.
 
 Return ONLY a valid JSON object. No preamble. No explanation. No markdown fences.
 
-Rules:
-- Accuracy over completeness. Mark low-confidence sections clearly.
-- Use the researcher's own words wherever possible.
-- Do not hallucinate publications, positions, or affiliations.
+Voice rules (strictly enforced):
+- Work statement and "what I bring" paragraphs: first-person prose. The researcher
+  speaks directly. "I work on…", "I bring…", "My focus is…"
+- Perspective description: quiet third-person, 1–2 sentences. Characterises the
+  person without editorialising. Never use "passionate", "innovative", "dedicated".
+- Trust strip and active projects: factual. Cite only what the intake evidence supports.
+- Do not hallucinate publications, positions, collaborators, or affiliations.
+- Do not include anything_not_public content in any public-facing field.
 - The profile should feel like a person, not a CV.
-- Public-facing fields must not include anything_not_public content.
-- Write all public-facing prose in first person ("I", "my", "we") or in a
-  noun-phrase style — never in third person. Never write "Marek is" or
-  "[Name] brings". Instead write "I am", "I bring", or just "Deep expertise in…".
+
+Section rules:
+- Tier 1 (identity, workStatement): always generate, even if sparse.
+  workStatement must have at least one paragraph. If the intake is thin, write
+  honestly from what is there rather than padding.
+- Tier 2 (trustStrip, whatImOpenTo, whatIBring, activeProjects, perspective):
+  generate each if evidence exists. Use empty arrays or omit sub-fields when
+  evidence is absent — do not invent content.
+- Tier 3 (pastProjects, selectedPublications, talksAndAppearances, writingAndMedia,
+  teachingAndMentorship, background, education): include ONLY if the intake
+  explicitly mentions content for that section. Omit otherwise.
+
+For whatImOpenTo items, choose the type that best matches the stated intent:
+  direct_ask   — concrete, specific request for help or collaboration
+  open_invitation — standing offer open to many people
+  exploratory_note — general curiosity or openness, no specific ask
 
 Return this exact JSON structure:
 
 {
-  "header": {
-    "content": {
-      "researcher_name": "string",
-      "role_career_stage": "string",
-      "institution": "string",
-      "department_or_lab": "string",
-      "field_and_subfield": "string"
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
   "identity": {
     "content": {
-      "identity_statement": "string (2-3 sentences: who they are, what drives them)",
-      "plain_language_research_description": "string",
-      "mission_statement": "string (one sentence)"
+      "name": "string",
+      "role": "string",
+      "institution": "string",
+      "group": "string (lab, group, or department — omit if none)",
+      "fieldDescriptor": "string (brief field descriptor, e.g. 'Mechanistic interpretability of neural networks')"
     },
     "confidence": "high|medium|low",
     "evidence": "string",
     "follow_up_needed": "string|null"
   },
-  "research_themes": {
+  "workStatement": {
     "content": {
-      "core_research_themes": ["string"]
+      "paragraphs": ["string (1–3 paragraphs, first-person, what they work on and why)"],
+      "inlineReferences": [
+        {
+          "label": "string (short descriptive label for the link)",
+          "url": "string|null (only include real URLs from the intake; null if label only)"
+        }
+      ]
     },
     "confidence": "high|medium|low",
     "evidence": "string",
     "follow_up_needed": "string|null"
   },
-  "current_focus": {
+  "trustStrip": {
     "content": {
-      "current_focus_description": "string (what they are actively working on now)"
+      "advisors": ["string (name and affiliation)"],
+      "collaborators": ["string (name/group and affiliation)"],
+      "funding": "string|null",
+      "linkedPapers": [
+        {
+          "title": "string",
+          "url": "string",
+          "note": "string|null"
+        }
+      ]
     },
     "confidence": "high|medium|low",
     "evidence": "string",
     "follow_up_needed": "string|null"
   },
-  "expertise": {
+  "whatImOpenTo": {
     "content": {
-      "methods_expertise": ["string"],
-      "domain_expertise": ["string"]
+      "items": [
+        {
+          "type": "direct_ask|open_invitation|exploratory_note",
+          "body": "string (first-person prose describing what they are open to)",
+          "interestedLabel": "string|null (short CTA label, e.g. 'Say hi')",
+          "forwardLabel": "string|null (forward prompt, e.g. 'Know someone? Forward')"
+        }
+      ]
     },
     "confidence": "high|medium|low",
     "evidence": "string",
     "follow_up_needed": "string|null"
   },
-  "selected_projects": {
+  "whatIBring": {
+    "content": {
+      "paragraphs": ["string (first-person, 1–2 paragraphs on expertise and what they offer collaborators)"]
+    },
+    "confidence": "high|medium|low",
+    "evidence": "string",
+    "follow_up_needed": "string|null"
+  },
+  "activeProjects": {
     "content": {
       "projects": [
         {
-          "project_title": "string",
-          "short_description": "string",
-          "current_status": "string"
-        }
-      ]
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "selected_outputs": {
-    "content": {
-      "outputs": [
-        {
-          "type": "string (publication|poster|talk|link)",
           "title": "string",
-          "url": "string|null"
+          "oneLine": "string (one sentence description)",
+          "url": "string (use '#' if no URL is known)"
         }
       ]
     },
@@ -96,60 +117,13 @@ Return this exact JSON structure:
     "evidence": "string",
     "follow_up_needed": "string|null"
   },
-  "who_they_want_to_reach": {
+  "perspective": {
     "content": {
-      "target_description": "string"
+      "quote": "string (direct quote from the researcher, from their own words in the intake)",
+      "description": "string (quiet third-person, 1–2 sentences characterising how they work or think)"
     },
     "confidence": "high|medium|low",
     "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "asks": {
-    "content": {
-      "primary_needs": "string",
-      "secondary_needs": "string|null"
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "what_they_offer": {
-    "content": {
-      "offer_description": "string"
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "human_layer": {
-    "content": {
-      "researcher_perspective_quote": "string",
-      "working_style_or_values": "string",
-      "why_this_work_matters_to_them": "string"
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "discoverability": {
-    "content": {
-      "keywords_tags": ["string"],
-      "website_links": ["string"],
-      "publication_links": ["string"],
-      "lab_link": "string|null"
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "constraints": {
-    "content": {
-      "anything_not_public": "string|null",
-      "ai_comfort": "string",
-      "editorial_notes": "string"
-    },
-    "confidence": "high",
-    "evidence": "Drawn directly from intake form",
     "follow_up_needed": "string|null"
   },
   "page_readiness": {
@@ -159,4 +133,11 @@ Return this exact JSON structure:
     "missing_information_that_would_improve_page": ["string"]
   }
 }
+
+Only include Tier 3 keys (pastProjects, selectedPublications, talksAndAppearances,
+writingAndMedia, teachingAndMentorship, background, education) if the intake
+explicitly mentions content for them. Each follows the same wrapper:
+  { "content": { "paragraphs": ["string"] }, "confidence": "...", "evidence": "...", "follow_up_needed": "..." }
+  or for list-based sections:
+  { "content": { "items": ["string"] }, "confidence": "...", "evidence": "...", "follow_up_needed": "..." }
 `.trim()

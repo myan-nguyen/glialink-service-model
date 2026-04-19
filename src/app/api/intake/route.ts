@@ -166,10 +166,14 @@ async function triggerGeneration(
     }
 
     const { page_readiness, ...sections } = parsed
+    const sectionsToStore =
+      artifact.output_type === 'researcher_profile'
+        ? { _v2: true, ...sections }
+        : sections
 
     await supabase
       .from('artifacts')
-      .update({ sections, page_readiness: page_readiness ?? null, generation_status: 'complete', generation_error: null })
+      .update({ sections: sectionsToStore, page_readiness: page_readiness ?? null, generation_status: 'complete', generation_error: null })
       .eq('id', artifactId)
 
   } catch (err) {
