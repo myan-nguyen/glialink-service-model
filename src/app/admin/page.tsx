@@ -15,11 +15,8 @@ export default function AdminDashboard() {
     setLoading(true)
     const res = await fetch('/api/admin/artifacts')
     const data = await res.json()
-    if (data.error) {
-      setError(data.error)
-    } else {
-      setArtifacts(data.artifacts)
-    }
+    if (data.error) setError(data.error)
+    else setArtifacts(data.artifacts)
     setLoading(false)
   }
 
@@ -30,13 +27,10 @@ export default function AdminDashboard() {
   const handleDelete = async (id: string) => {
     setDeleting(id)
     const res = await fetch(`/api/admin/artifacts/${id}`, { method: 'DELETE' })
-    if (res.ok) {
-      setArtifacts((prev) => prev.filter((a) => a.id !== id))
-    }
+    if (res.ok) setArtifacts((prev) => prev.filter((a) => a.id !== id))
     setDeleting(null)
   }
 
-  // Filter by search term across name, email, institution
   const filtered = useMemo(() => {
     if (!search.trim()) return artifacts
     const q = search.toLowerCase()
@@ -55,96 +49,98 @@ export default function AdminDashboard() {
   const published = filtered.filter((a) => a.status === 'published')
 
   return (
-    <div className="p-8 max-w-5xl">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h1 className="text-xl font-semibold text-white">Dashboard</h1>
-          <p className="text-sm text-neutral-500 mt-0.5">
-            {artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''} total
-          </p>
+    <div className="h-full overflow-y-auto">
+      <div className="p-8 max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+            <p className="text-sm text-neutral-500 mt-1">
+              {artifacts.length} artifact{artifacts.length !== 1 ? 's' : ''}
+              {' · '}
+              {drafts.length} draft{drafts.length !== 1 ? 's' : ''}
+              {' · '}
+              {published.length} published
+            </p>
+          </div>
+          <Link
+            href="/admin/intake/new"
+            className="px-4 py-2 bg-white text-neutral-900 rounded-lg
+                       text-sm font-medium hover:bg-neutral-100 transition-colors"
+          >
+            + New Intake
+          </Link>
         </div>
-        <Link
-          href="/admin/intake/new"
-          className="px-4 py-2 bg-white text-neutral-900 rounded-lg
-                     text-sm font-medium hover:bg-neutral-100 transition-colors"
-        >
-          + New Intake
-        </Link>
+
+        {/* Search */}
+        <div className="mb-8">
+          <input
+            type="search"
+            placeholder="Search by name, email, or institution…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full max-w-md bg-neutral-900 border border-neutral-700
+                       rounded-lg px-4 py-2.5 text-sm text-white
+                       placeholder-neutral-600 focus:outline-none
+                       focus:border-neutral-500 transition-colors"
+          />
+        </div>
+
+        {error && (
+          <div className="mb-6 text-sm text-red-400 bg-red-950/30 border
+                          border-red-800 rounded-lg px-4 py-3">
+            {error}
+          </div>
+        )}
+
+        {loading ? (
+          <div className="space-y-8">
+            {[...Array(2)].map((_, i) => (
+              <div key={i} className="space-y-3">
+                <div className="h-4 w-24 bg-neutral-800 rounded animate-pulse" />
+                <div className="h-12 bg-neutral-800/50 rounded animate-pulse" />
+                <div className="h-12 bg-neutral-800/50 rounded animate-pulse" />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-10">
+            <section>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-sm font-medium text-neutral-300">Drafts</h2>
+                <span className="text-xs text-neutral-600 bg-neutral-800
+                                 px-2 py-0.5 rounded-full">
+                  {drafts.length}
+                </span>
+              </div>
+              <div className="border border-neutral-800 rounded-xl overflow-hidden">
+                <ArtifactTable
+                  artifacts={drafts}
+                  onDelete={handleDelete}
+                  deleting={deleting}
+                />
+              </div>
+            </section>
+
+            <section>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-sm font-medium text-neutral-300">Published</h2>
+                <span className="text-xs text-neutral-600 bg-neutral-800
+                                 px-2 py-0.5 rounded-full">
+                  {published.length}
+                </span>
+              </div>
+              <div className="border border-neutral-800 rounded-xl overflow-hidden">
+                <ArtifactTable
+                  artifacts={published}
+                  onDelete={handleDelete}
+                  deleting={deleting}
+                />
+              </div>
+            </section>
+          </div>
+        )}
       </div>
-
-      {/* Search */}
-      <div className="mb-8">
-        <input
-          type="search"
-          placeholder="Search by name, email, or institution…"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full max-w-md bg-neutral-900 border border-neutral-700
-                     rounded-lg px-4 py-2.5 text-sm text-white
-                     placeholder-neutral-600 focus:outline-none
-                     focus:border-neutral-500 transition-colors"
-        />
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div className="mb-6 text-sm text-red-400 bg-red-950/30 border
-                        border-red-800 rounded-lg px-4 py-3">
-          {error}
-        </div>
-      )}
-
-      {/* Loading */}
-      {loading ? (
-        <div className="space-y-8">
-          {[...Array(2)].map((_, i) => (
-            <div key={i} className="space-y-3">
-              <div className="h-4 w-24 bg-neutral-800 rounded animate-pulse" />
-              <div className="h-12 bg-neutral-800/50 rounded animate-pulse" />
-              <div className="h-12 bg-neutral-800/50 rounded animate-pulse" />
-            </div>
-          ))}
-        </div>
-      ) : (
-        <div className="space-y-10">
-          {/* Drafts */}
-          <section>
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-sm font-medium text-neutral-300">Drafts</h2>
-              <span className="text-xs text-neutral-600 bg-neutral-800
-                               px-2 py-0.5 rounded-full">
-                {drafts.length}
-              </span>
-            </div>
-            <div className="border border-neutral-800 rounded-xl overflow-hidden">
-              <ArtifactTable
-                artifacts={drafts}
-                onDelete={handleDelete}
-                deleting={deleting}
-              />
-            </div>
-          </section>
-
-          {/* Published */}
-          <section>
-            <div className="flex items-center gap-3 mb-4">
-              <h2 className="text-sm font-medium text-neutral-300">Published</h2>
-              <span className="text-xs text-neutral-600 bg-neutral-800
-                               px-2 py-0.5 rounded-full">
-                {published.length}
-              </span>
-            </div>
-            <div className="border border-neutral-800 rounded-xl overflow-hidden">
-              <ArtifactTable
-                artifacts={published}
-                onDelete={handleDelete}
-                deleting={deleting}
-              />
-            </div>
-          </section>
-        </div>
-      )}
     </div>
   )
 }

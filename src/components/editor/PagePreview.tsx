@@ -1,58 +1,22 @@
 'use client'
+import { useShallow } from 'zustand/react/shallow'
 import { useEditorStore } from './useEditorStore'
 import { SECTION_LABELS } from '@/lib/constants'
 import { SECTION_ORDER } from '@/lib/constants'
-import { useShallow } from 'zustand/react/shallow'
-
-function renderValue(value: unknown): React.ReactNode {
-  if (value === null || value === undefined || value === '') {
-    return <span className="text-neutral-600 italic">Not filled</span>
-  }
-  if (typeof value === 'string') {
-    return <span>{value}</span>
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) return <span className="text-neutral-600 italic">Empty</span>
-    if (typeof value[0] === 'string') {
-      return (
-        <ul className="list-disc list-inside space-y-0.5">
-          {(value as string[]).map((item, i) => (
-            <li key={i} className="text-neutral-300">{item}</li>
-          ))}
-        </ul>
-      )
-    }
-    if (typeof value[0] === 'object') {
-      return (
-        <div className="space-y-2">
-          {(value as Record<string, string>[]).map((item, i) => (
-            <div key={i} className="pl-3 border-l border-neutral-700 space-y-0.5">
-              {Object.entries(item).map(([k, v]) => (
-                <p key={k} className="text-sm text-neutral-400">
-                  <span className="text-neutral-500 text-xs">
-                    {k.replace(/_/g, ' ')}:{' '}
-                  </span>
-                  {v}
-                </p>
-              ))}
-            </div>
-          ))}
-        </div>
-      )
-    }
-  }
-  return <span>{String(value)}</span>
-}
+import { PublicPage } from '@/components/public/PublicPage'
+import type { Artifact } from '@/lib/types'
 
 export function PagePreview({ outputType }: { outputType: string }) {
-  const { customSections, selectedSection, selectSection, generationStatus } =
-    useEditorStore()
-  
-    const sections = useEditorStore(useShallow((state) => state.sections))
+  const sections = useEditorStore(useShallow((state) => state.sections))
+  const customSections = useEditorStore((state) => state.customSections)
+  const selectedSection = useEditorStore((state) => state.selectedSection)
+  const selectSection = useEditorStore((state) => state.selectSection)
+  const generationStatus = useEditorStore((state) => state.generationStatus)
 
   if (generationStatus === 'pending' || generationStatus === 'generating') {
     return (
-      <div className="flex flex-col items-center justify-center h-full space-y-4">
+      <div className="flex flex-col items-center justify-center h-full
+                      space-y-4 bg-neutral-950">
         <div className="w-8 h-8 border-2 border-neutral-600 border-t-white
                         rounded-full animate-spin" />
         <p className="text-sm text-neutral-500">Generating content…</p>
@@ -63,7 +27,7 @@ export function PagePreview({ outputType }: { outputType: string }) {
 
   if (generationStatus === 'failed') {
     return (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center justify-center h-full bg-neutral-950">
         <div className="text-center space-y-2 max-w-sm px-4">
           <p className="text-red-400 text-sm font-medium">Generation failed</p>
           <p className="text-neutral-500 text-xs">
@@ -75,65 +39,60 @@ export function PagePreview({ outputType }: { outputType: string }) {
   }
 
   const sectionOrder = SECTION_ORDER[outputType] ?? Object.keys(sections)
-  const orderedSections = sectionOrder.filter((key) => key in sections)
+
+  // Build a synthetic artifact for the PublicPage renderer
+  const artifact = {
+    output_type: outputType,
+    sections: {
+      ...sections,
+      custom_sections: customSections,
+    },
+  } as unknown as Artifact
 
   return (
-    <div className="h-full overflow-y-auto px-8 py-8">
-      <div className="max-w-2xl mx-auto space-y-6">
-        {orderedSections.map((name) => {
-          const section = sections[name]
-          if (!section) return null
-          const isSelected = selectedSection === name
+    <div className="h-full overflow-y-auto bg-canvas">
+      {/* Preview frame */}
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 relative">
+        <PublicPage artifact={artifact} />
 
-          return (
-            <div
-              key={name}
-              onClick={() => selectSection(isSelected ? null : name)}
-              className={`rounded-xl border p-5 cursor-pointer transition-all ${
-                isSelected
-                  ? 'border-white/30 bg-neutral-800/60'
-                  : 'border-neutral-800 bg-neutral-900/40 hover:border-neutral-700'
-              }`}
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wide">
-                  {SECTION_LABELS[name] ?? name}
-                </h3>
-                {isSelected && (
-                  <span className="text-xs text-neutral-500">Editing →</span>
-                )}
-              </div>
-              <div className="space-y-2">
-                {Object.entries(section.content).map(([key, value]) => (
-                  <div key={key}>
-                    <p className="text-xs text-neutral-600 mb-0.5">
-                      {key.replace(/_/g, ' ')}
-                    </p>
-                    <div className="text-sm text-neutral-200 leading-relaxed">
-                      {renderValue(value)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )
-        })}
+        {/* Section selection overlay */}
+        <EditorSectionOverlay
+          sectionOrder={sectionOrder}
+          sections={sections}
+          selectedSection={selectedSection}
+          onSelect={selectSection}
+        />
+      </div>
 
-        {/* Custom sections in preview */}
-        {customSections.map((cs) => (
-          <div
-            key={cs.id}
-            className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-5"
-          >
-            <h3 className="text-xs font-medium text-neutral-500 uppercase tracking-wide mb-3">
-              {cs.title || 'Custom Section'}
-            </h3>
-            <p className="text-sm text-neutral-200 whitespace-pre-wrap">
-              {cs.content || <span className="text-neutral-600 italic">No content</span>}
-            </p>
-          </div>
-        ))}
+      {/* Subtle preview banner at top */}
+      <div className="fixed top-[52px] right-5 z-10">
+        <span className="px-3 py-1 text-[10px] font-sans font-semibold
+                         tracking-wider uppercase text-brand bg-brand-mist
+                         border border-brand-soft/40 rounded-full">
+          Preview
+        </span>
       </div>
     </div>
   )
+}
+
+// Invisible overlay that makes each section clickable without altering the
+// visual layout. Wraps the public renderer with positioned click targets.
+function EditorSectionOverlay({
+  sectionOrder,
+  sections,
+  selectedSection,
+  onSelect,
+}: {
+  sectionOrder: string[]
+  sections: Record<string, unknown>
+  selectedSection: string | null
+  onSelect: (name: string | null) => void
+}) {
+  // No-op for now: selection ring is applied via a global CSS rule
+  // that targets data-section-name attributes if we later add them.
+  // The PublicPage renderer does not currently expose per-section refs.
+  // Selection is driven by the right-panel section list; clicking in the
+  // preview to select is a future enhancement.
+  return null
 }

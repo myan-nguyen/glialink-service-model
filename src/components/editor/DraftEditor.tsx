@@ -1,14 +1,19 @@
 'use client'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import {
+  PanelGroup,
+  Panel,
+  PanelResizeHandle,
+} from 'react-resizable-panels'
 import { useEditorStore, SectionData } from './useEditorStore'
 import { useGenerationPoller } from './useGenerationPoller'
+import { useUnsavedWarning } from './useUnsavedWarning'
 import { PagePreview } from './PagePreview'
 import { SectionPanel } from './SectionPanel'
 import { CustomSectionAdder } from './CustomSectionAdder'
 import type { Artifact, Researcher } from '@/lib/types'
-import { useUnsavedWarning } from './useUnsavedWarning'
-import Link from 'next/link'
 
 interface Props {
   artifact: Artifact & { researchers: Researcher }
@@ -26,10 +31,11 @@ export function DraftEditor({ artifact }: Props) {
     updateSection,
   } = useEditorStore()
 
+  const [bottomCollapsed, setBottomCollapsed] = useState(false)
+
   const isDirty = useEditorStore((state) => state.isDirty)
   useUnsavedWarning(isDirty)
 
-  // Initialise store from server-fetched artifact
   useEffect(() => {
     const { custom_sections, ...mainSections } = (artifact.sections ?? {}) as Record<
       string,
@@ -40,26 +46,19 @@ export function DraftEditor({ artifact }: Props) {
       artifact.generation_status,
       artifact.generation_error
     )
-    // Restore custom sections if any were saved
     if (Array.isArray(custom_sections)) {
       custom_sections.forEach((cs: { id: string; title: string; content: string }) => {
         useEditorStore.getState().addCustomSection()
-        // Overwrite the newly added empty custom section with saved data
         const added =
           useEditorStore.getState().customSections[
             useEditorStore.getState().customSections.length - 1
           ]
-        useEditorStore
-          .getState()
-          .updateCustomSection(added.id, 'title', cs.title)
-        useEditorStore
-          .getState()
-          .updateCustomSection(added.id, 'content', cs.content)
+        useEditorStore.getState().updateCustomSection(added.id, 'title', cs.title)
+        useEditorStore.getState().updateCustomSection(added.id, 'content', cs.content)
       })
     }
   }, [artifact.id])
 
-  // Poll for generation completion if not already done
   useGenerationPoller(artifact.id, artifact.generation_status)
 
   const handleSave = async () => {
@@ -86,10 +85,7 @@ export function DraftEditor({ artifact }: Props) {
     })
     const data = await res.json()
     setIsPublishing(false)
-
-    if (data.slug) {
-      router.push(`/p/${data.slug}`)
-    }
+    if (data.slug) router.push(`/p/${data.slug}`)
   }
 
   const handleRegenerateSection = async (sectionName: string) => {
@@ -99,13 +95,10 @@ export function DraftEditor({ artifact }: Props) {
       body: JSON.stringify({ artifact_id: artifact.id, section_name: sectionName }),
     })
     const data = await res.json()
-    if (data.section) {
-      updateSection(sectionName, data.section)
-    }
+    if (data.section) updateSection(sectionName, data.section)
   }
 
   const handleRegenerateAll = async () => {
-    // Re-trigger full generation via the full route
     await fetch('/api/generate/full', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -118,7 +111,6 @@ export function DraftEditor({ artifact }: Props) {
         },
       }),
     })
-    // Poller will pick up the status change
     useEditorStore.getState().setGenerationStatus('generating')
   }
 
@@ -126,28 +118,31 @@ export function DraftEditor({ artifact }: Props) {
 
   return (
     <div className="flex flex-col h-screen">
-            {/* Header */}
+      {/* Top bar */}
       <div className="flex-shrink-0 border-b border-neutral-800 px-6 py-3
                       flex items-center justify-between">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 min-w-0">
           <Link
             href="/admin"
             className="text-neutral-600 hover:text-neutral-300 transition-colors
-                      text-sm flex items-center gap-1"
+                       text-sm flex items-center gap-1 shrink-0"
           >
             ← Dashboard
           </Link>
-          <div className="w-px h-4 bg-neutral-800" />
-          <div>
-            <p className="text-sm font-medium text-white">
+          <div className="w-px h-4 bg-neutral-800 shrink-0" />
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white truncate">
               {researcher?.full_name ?? artifact.researcher_email}
             </p>
             <p className="text-xs text-neutral-500 capitalize mt-0.5">
               {artifact.output_type.replace(/_/g, ' ')} · {artifact.status}
+              {isDirty && (
+                <span className="ml-2 text-amber-500">· unsaved</span>
+              )}
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0">
           {artifact.slug && (
             <a
               href={`/p/${artifact.slug}`}
@@ -161,29 +156,60 @@ export function DraftEditor({ artifact }: Props) {
         </div>
       </div>
 
-      {/* Main editor layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left: Live preview */}
-        <div className="flex-1 bg-neutral-950 border-r border-neutral-800">
-          <PagePreview outputType={artifact.output_type} />
-        </div>
+      {/* Main editor area: resizable horizontally */}
+      <div className="flex-1 overflow-hidden">
+        <PanelGroup direction="horizontal" autoSaveId="editor-panels">
+          <Panel defaultSize={70} minSize={40}>
+            <div className="h-full bg-neutral-950">
+              <PagePreview outputType={artifact.output_type} />
+            </div>
+          </Panel>
 
-        {/* Right: Section panel */}
-        <div className="w-80 flex-shrink-0 bg-neutral-900 flex flex-col">
-          <SectionPanel
-            artifactId={artifact.id}
-            outputType={artifact.output_type}
-            onRegenerateSection={handleRegenerateSection}
-            onRegenerateAll={handleRegenerateAll}
-            onSave={handleSave}
-            onPublish={handlePublish}
-          />
-        </div>
+          <PanelResizeHandle className="w-px bg-neutral-800 hover:bg-neutral-600
+                                        data-[resize-handle-state=drag]:bg-neutral-500
+                                        transition-colors" />
+
+          <Panel defaultSize={30} minSize={20} maxSize={45}>
+            <div className="h-full bg-neutral-900 flex flex-col">
+              <SectionPanel
+                artifactId={artifact.id}
+                outputType={artifact.output_type}
+                onRegenerateSection={handleRegenerateSection}
+                onRegenerateAll={handleRegenerateAll}
+                onSave={handleSave}
+                onPublish={handlePublish}
+              />
+            </div>
+          </Panel>
+        </PanelGroup>
       </div>
 
-      {/* Bottom: Custom section adder */}
+      {/* Collapsible bottom bar */}
       <div className="flex-shrink-0 bg-neutral-950 border-t border-neutral-800">
-        <CustomSectionAdder />
+        <button
+          onClick={() => setBottomCollapsed((c) => !c)}
+          className="w-full px-6 py-2.5 flex items-center justify-between
+                     text-xs text-neutral-500 hover:text-neutral-300
+                     hover:bg-neutral-900/40 transition-colors"
+        >
+          <span className="flex items-center gap-2">
+            <span
+              className={`inline-block transition-transform ${
+                bottomCollapsed ? '' : 'rotate-180'
+              }`}
+            >
+              ▾
+            </span>
+            Additional Sections
+            {customSections.length > 0 && (
+              <span className="text-neutral-700">({customSections.length})</span>
+            )}
+          </span>
+          <span className="text-neutral-700">
+            {bottomCollapsed ? 'Click to expand' : 'Click to collapse'}
+          </span>
+        </button>
+        {!bottomCollapsed && <CustomSectionAdder />}
       </div>
     </div>
   )

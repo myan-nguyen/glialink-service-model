@@ -4,31 +4,41 @@ export function CTAFooter({ ctaText }: { ctaText?: string }) {
   const subject = encodeURIComponent('Glialink — Research Collaboration Inquiry')
 
   return (
-    <div className="border-t border-parchment-border mt-4">
-      {/* CTA section */}
-      <div className="py-14 text-center">
-        <p className="font-display text-2xl text-ink mb-3">
-          {ctaText || 'Interested in connecting?'}
-        </p>
-        <p className="text-sm text-ink-muted font-serif mb-6 max-w-sm mx-auto">
-          Reach out to the Glialink team and we will connect you with this researcher.
+    <div className="mt-8 sm:mt-12">
+      {/* CTA card */}
+      <div className="bg-gradient-to-br from-brand-mist to-brand-ghost
+                      border border-brand-soft/30 rounded-2xl
+                      p-8 sm:p-10 text-center">
+        <h3 className="font-display text-xl sm:text-2xl md:text-3xl
+                       font-bold text-ink leading-tight mb-3
+                       max-w-xl mx-auto">
+          {ctaText ||
+            'Is your research invisible to people who could help? Get the collaborators, students, and support you\'ve been missing.'}
+        </h3>
+        <p className="text-sm sm:text-base text-ink-muted font-sans mb-6
+                      max-w-lg mx-auto">
+          Glialink turns your paper, abstract, and link into a living page
+          with clear asks and active context.
         </p>
         <a
           href={`mailto:${CTA_EMAIL}?subject=${subject}`}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-ink text-parchment
-                     font-serif text-sm rounded-full hover:bg-ink-light
-                     transition-colors"
+          className="inline-flex items-center gap-2 px-6 sm:px-8 py-3
+                     bg-brand hover:bg-brand-dark text-white font-sans
+                     font-medium text-sm rounded-full
+                     transition-colors shadow-sm hover:shadow-md"
         >
-          Get in touch
-          <span className="text-gold">→</span>
+          Share your research
+          <span>→</span>
         </a>
       </div>
 
-      {/* Glialink footer */}
-      <div className="border-t border-parchment-border py-6 text-center">
-        <p className="text-xs text-ink-subtle font-serif">
+      {/* Small footer */}
+      <div className="py-6 text-center">
+        <p className="text-xs text-ink-subtle font-sans">
           Powered by{' '}
-          <span className="font-display font-semibold text-ink-muted">Glialink</span>
+          <span className="font-display font-semibold text-brand">
+            Glialink
+          </span>
           {' '}— making research discoverable, communicable, and impactful.
         </p>
       </div>

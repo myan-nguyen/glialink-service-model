@@ -12,22 +12,23 @@ export function ShareBanner({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="border-b border-parchment-border bg-parchment-dark">
-      <div className="max-w-3xl mx-auto px-6 py-3 flex items-center
-                      justify-between gap-4">
+    <div className="border-b border-canvas-border bg-canvas-soft">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-2.5 flex items-center
+                      justify-between gap-3">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs text-ink-muted font-serif shrink-0">
+          <span className="text-xs text-ink-muted font-sans shrink-0">
             Share this page
           </span>
-          <span className="text-xs text-ink-subtle font-mono truncate hidden sm:block">
+          <span className="text-xs text-ink-subtle font-mono truncate
+                           hidden sm:block">
             {url}
           </span>
         </div>
         <button
           onClick={handleCopy}
-          className="shrink-0 px-3 py-1.5 text-xs font-serif border
-                     border-parchment-border bg-parchment text-ink-muted
-                     rounded-full hover:border-gold hover:text-gold
+          className="shrink-0 px-3 py-1.5 text-xs font-sans border
+                     border-canvas-border bg-canvas text-ink-muted
+                     rounded-full hover:border-brand hover:text-brand
                      transition-colors"
         >
           {copied ? '✓ Copied' : 'Copy link'}

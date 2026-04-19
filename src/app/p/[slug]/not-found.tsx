@@ -1,17 +1,16 @@
-import Link from 'next/link'
-
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
+    <div className="min-h-screen flex items-center justify-center px-6
+                    bg-canvas">
       <div className="text-center space-y-4 max-w-sm">
-        <p className="font-display text-5xl font-bold text-ink-subtle">404</p>
+        <p className="font-display text-5xl font-bold text-brand-soft">404</p>
         <h1 className="font-display text-xl text-ink">Page not found</h1>
-        <p className="text-sm text-ink-muted font-serif">
+        <p className="text-sm text-ink-muted font-sans">
           This page may not exist, or has not been published yet.
         </p>
-        <p className="text-xs text-ink-subtle font-serif pt-2">
+        <p className="text-xs text-ink-subtle font-sans pt-2">
           Powered by{' '}
-          <span className="font-display font-semibold text-ink-muted">Glialink</span>
+          <span className="font-display font-semibold text-brand">Glialink</span>
         </p>
       </div>
     </div>

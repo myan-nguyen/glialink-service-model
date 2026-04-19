@@ -7,23 +7,40 @@ const config: Config = {
       fontFamily: {
         display: ['var(--font-playfair)', 'Georgia', 'serif'],
         serif: ['var(--font-source-serif)', 'Georgia', 'serif'],
+        sans: ['var(--font-source-serif)', 'system-ui', 'sans-serif'],
       },
       colors: {
+        brand: {
+          DEFAULT: '#7c3aed',
+          dark: '#5b21b6',
+          light: '#a78bfa',
+          pale: '#ede9fe',
+          ghost: '#f5f3ff',
+        },
         ink: {
-          DEFAULT: '#1a1814',
-          light: '#3d3a35',
-          muted: '#6b6760',
-          subtle: '#9e9b97',
+          DEFAULT: '#111114',
+          light: '#2a2a30',
+          muted: '#605f6b',
+          subtle: '#9d9ba7',
         },
-        parchment: {
-          DEFAULT: '#fafaf8',
-          dark: '#f0efe9',
-          border: '#e4e2dc',
+        surface: {
+          DEFAULT: '#ffffff',
+          tint: '#faf9fc',
+          border: '#e8e4ef',
         },
-        gold: {
-          DEFAULT: '#c8922a',
-          light: '#e8b84b',
-          muted: '#d4a853',
+      },
+      animation: {
+        'fade-in': 'fadeIn 400ms ease-out forwards',
+        'fade-up': 'fadeUp 500ms ease-out forwards',
+      },
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        fadeUp: {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },
     },

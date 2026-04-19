@@ -1,7 +1,13 @@
 import type { Artifact } from '@/lib/types'
-import * as R from './SectionRenderers'
+import * as P from './project-sections'
+import * as R from './researcher-sections'
+import * as L from './lab-sections'
+import { CustomSections } from './custom-sections'
 
-function get(sections: Record<string, { content: Record<string, unknown> }>, key: string) {
+function get(
+  sections: Record<string, { content: Record<string, unknown> }>,
+  key: string
+) {
   return (sections[key]?.content ?? {}) as Record<string, never>
 }
 
@@ -10,34 +16,56 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
     string,
     { content: Record<string, unknown> }
   >
-  const customSections = (
-    (s.custom_sections as unknown) ?? []
-  ) as Array<{ id: string; title: string; content: string }>
+  const customSections = ((s.custom_sections as unknown) ?? []) as Array<{
+    id: string
+    title: string
+    content: string
+  }>
 
   if (artifact.output_type === 'project_page') {
+    const asksContent = get(s, 'asks') as Record<string, unknown>
+    // Support either shape: {ask_title, ...} or {asks: [...]}
+    const asksArray =
+      Array.isArray(asksContent?.asks)
+        ? (asksContent.asks as Array<{
+            ask_title?: string
+            ask_description?: string
+            best_fit_people?: string
+          }>)
+        : asksContent.ask_title || asksContent.ask_description
+          ? [
+              {
+                ask_title: asksContent.ask_title as string,
+                ask_description: asksContent.ask_description as string,
+                best_fit_people: asksContent.best_fit_people as string,
+              },
+            ]
+          : []
+
     return (
       <>
-        <R.ProjectHeader content={get(s, 'header')} />
-        <R.ProjectSummary content={get(s, 'summary')} />
-        <R.CurrentStage content={get(s, 'current_stage')} />
-        <R.WhyThisMatters content={get(s, 'why_this_matters')} />
-        <R.ResearchFocus content={get(s, 'research_focus')} />
-        <R.MethodsApproach content={get(s, 'methods_approach')} />
-        <R.KeyFindings content={get(s, 'key_findings')} />
-        <R.ResearchTags content={get(s, 'research_tags')} />
-        <R.ProjectAsks content={get(s, 'asks')} />
-        <R.WhatWeOffer content={get(s, 'what_we_offer')} />
-        <R.PotentialImpact content={get(s, 'potential_impact')} />
-        <R.ResearcherPerspective content={get(s, 'researcher_perspective')} />
-        <R.CustomSections sections={customSections} />
+        <P.ProjectHeader content={get(s, 'header')} />
+        <P.CurrentStage content={get(s, 'current_stage')} />
+        <P.ProjectSummary content={get(s, 'summary')} />
+        <P.WhyThisMatters content={get(s, 'why_this_matters')} />
+        <P.ResearchFocus content={get(s, 'research_focus')} />
+        <P.MethodsApproach content={get(s, 'methods_approach')} />
+        <P.KeyFindings content={get(s, 'key_findings')} />
+        <P.ResearchTags content={get(s, 'research_tags')} />
+        <P.FiguresEvidence content={get(s, 'figures_evidence')} />
+        <P.ProjectAsksList asks={asksArray} />
+        <P.WhatWeOffer content={get(s, 'what_we_offer')} />
+        <P.PotentialImpact content={get(s, 'potential_impact')} />
+        <P.ResearcherPerspective content={get(s, 'researcher_perspective')} />
+        <CustomSections sections={customSections} />
       </>
     )
   }
 
   if (artifact.output_type === 'researcher_profile') {
     return (
-      <>
-        <R.ResearcherHeader content={get(s, 'header')} />
+      <div className="space-y-5 sm:space-y-6 pb-4">
+        <R.ResearcherHero content={get(s, 'header')} />
         <R.ResearcherIdentity content={get(s, 'identity')} />
         <R.ResearchThemes content={get(s, 'research_themes')} />
         <R.CurrentFocusSection content={get(s, 'current_focus')} />
@@ -49,27 +77,28 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
         <R.WhatTheyOffer content={get(s, 'what_they_offer')} />
         <R.HumanLayer content={get(s, 'human_layer')} />
         <R.Discoverability content={get(s, 'discoverability')} />
-        <R.CustomSections sections={customSections} />
-      </>
+        <CustomSections sections={customSections} cardStyle />
+      </div>
     )
   }
 
   if (artifact.output_type === 'lab_profile') {
     return (
-      <>
-        <R.LabHeader content={get(s, 'header')} />
-        <R.LabSummary content={get(s, 'summary')} />
-        <R.ResearchAreas content={get(s, 'research_areas')} />
-        <R.CurrentDirections content={get(s, 'current_directions')} />
-        <R.FlagshipProjects content={get(s, 'flagship_projects')} />
-        <R.TeamFit content={get(s, 'team_fit')} />
-        <R.Opportunities content={get(s, 'opportunities')} />
-        <R.LabAsks content={get(s, 'asks')} />
-        <R.WhatTheLabOffers content={get(s, 'what_the_lab_offers')} />
-        <R.ProofVisibility content={get(s, 'proof_visibility')} />
-        <R.LabHumanLayer content={get(s, 'human_layer')} />
-        <R.CustomSections sections={customSections} />
-      </>
+      <div className="space-y-5 sm:space-y-6 pb-4">
+        <L.LabHero content={get(s, 'header')} />
+        <L.LabSummary content={get(s, 'summary')} />
+        <L.ResearchAreas content={get(s, 'research_areas')} />
+        <L.Opportunities content={get(s, 'opportunities')} />
+        <L.CurrentDirections content={get(s, 'current_directions')} />
+        <L.FlagshipProjects content={get(s, 'flagship_projects')} />
+        <L.Capabilities content={get(s, 'capabilities')} />
+        <L.TeamFit content={get(s, 'team_fit')} />
+        <L.LabAsks content={get(s, 'asks')} />
+        <L.WhatTheLabOffers content={get(s, 'what_the_lab_offers')} />
+        <L.ProofVisibility content={get(s, 'proof_visibility')} />
+        <L.LabHumanLayer content={get(s, 'human_layer')} />
+        <CustomSections sections={customSections} cardStyle />
+      </div>
     )
   }
 
