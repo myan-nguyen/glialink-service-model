@@ -5,7 +5,8 @@ const ALLOWED_EMAILS = [
   'myan_nguyen@brown.edu',
   'salter_arms@brown.edu',
   'danrkasten@gmail.com',
-  'anushkajain212@gmail.com'
+  'anushkajain212@gmail.com',
+  'hyepuri2@gmail.com'
 ]
 
 export async function updateSession(request: NextRequest) {
