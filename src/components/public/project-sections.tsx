@@ -18,33 +18,47 @@ export function ProjectHeader({ content }: { content: Record<string, string> }) 
   return (
     <section className="w-full pt-10 sm:pt-14 pb-6 bg-brand-ghost">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
-        {content.project_type_label && (
-          <p className="text-[11px] font-display font-semibold tracking-[0.18em]
-                        uppercase text-brand mb-5">
-            {content.project_type_label}
-          </p>
-        )}
-        <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
-                       leading-[1.1] mb-5 tracking-tight break-words">
-          {content.project_title || 'Untitled Project'}
-        </h1>
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base
-                        text-ink-muted font-serif">
-          {content.researcher_name && (
-            <span className="font-semibold text-ink-light">
-              {content.researcher_name}
-            </span>
-          )}
-          {content.researcher_role && <span className="text-ink-subtle">·</span>}
-          {content.researcher_role && <span>{content.researcher_role}</span>}
-          {content.institution && <span className="text-ink-subtle">·</span>}
-          {content.institution && <span>{content.institution}</span>}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex-1 min-w-0">
+            {content.project_type_label && (
+              <p className="text-[11px] font-display font-semibold tracking-[0.18em]
+                            uppercase text-brand mb-5">
+                {content.project_type_label}
+              </p>
+            )}
+            <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
+                           leading-[1.1] mb-5 tracking-tight break-words">
+              {content.project_title || 'Untitled Project'}
+            </h1>
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-base
+                            text-ink-muted font-serif">
+              {content.researcher_name && (
+                <span className="font-semibold text-ink-light">
+                  {content.researcher_name}
+                </span>
+              )}
+              {content.researcher_role && <span className="text-ink-subtle">·</span>}
+              {content.researcher_role && <span>{content.researcher_role}</span>}
+              {content.institution && <span className="text-ink-subtle">·</span>}
+              {content.institution && <span>{content.institution}</span>}
+            </div>
+            {content.department_or_lab && (
+              <p className="text-base text-ink-muted font-serif mt-1">
+                {content.department_or_lab}
+              </p>
+            )}
+          </div>
+          <a
+            href="https://joinglialink.demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start shrink-0 sm:mt-1 px-4 py-2 text-sm font-serif font-medium
+                       bg-brand text-white rounded-lg hover:bg-brand-dark
+                       transition-colors whitespace-nowrap"
+          >
+            Join Glialink ↗
+          </a>
         </div>
-        {content.department_or_lab && (
-          <p className="text-base text-ink-muted font-serif mt-1">
-            {content.department_or_lab}
-          </p>
-        )}
       </div>
     </section>
   )

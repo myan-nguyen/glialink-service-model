@@ -5,7 +5,7 @@ import {
   CAREER_STAGES, PRIMARY_GOALS, TARGET_AUDIENCES, AI_COMFORT_OPTIONS
 } from '@/lib/constants'
 import type {
-  OutputType, CareerStage, AiComfort, PrimaryGoal, TargetAudience
+  OutputType, CareerStage, AiComfort, PrimaryGoal, TargetAudience, SupplementalLink
 } from '@/lib/types'
 import Link from 'next/link'
 
@@ -39,6 +39,64 @@ const textareaClass = `${inputClass} resize-none`
 
 const selectClass = `${inputClass} cursor-pointer`
 
+// ─── Supplemental links ──────────────────────────────────────────────────────
+
+function SupplementalLinksField({
+  links,
+  onChange,
+}: {
+  links: SupplementalLink[]
+  onChange: (links: SupplementalLink[]) => void
+}) {
+  const update = (i: number, patch: Partial<SupplementalLink>) => {
+    const next = [...links]
+    next[i] = { ...next[i], ...patch }
+    onChange(next)
+  }
+  const add = () => onChange([...links, { label: '', url: '' }])
+  const remove = (i: number) => onChange(links.filter((_, j) => j !== i))
+
+  return (
+    <Field
+      label="Supplemental links"
+      hint="Existing websites, publications, portfolios, or project links that Claude can use as context."
+    >
+      <div className="space-y-2">
+        {links.map((link, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            <input
+              className={inputClass + ' flex-1'}
+              placeholder="Label (e.g. Lab website)"
+              value={link.label}
+              onChange={e => update(i, { label: e.target.value })}
+            />
+            <input
+              className={inputClass + ' flex-[2]'}
+              placeholder="https://…"
+              value={link.url}
+              onChange={e => update(i, { url: e.target.value })}
+            />
+            <button
+              type="button"
+              onClick={() => remove(i)}
+              className="text-neutral-400 hover:text-neutral-700 text-xs px-1 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={add}
+          className="text-xs text-neutral-500 hover:text-neutral-800 transition-colors"
+        >
+          + Add link
+        </button>
+      </div>
+    </Field>
+  )
+}
+
 // ─── Step 1: Researcher Identity ────────────────────────────────────────────
 
 interface IdentityFields {
@@ -51,13 +109,16 @@ interface IdentityFields {
   plain_language_research_description: string
   ai_comfort: AiComfort | ''
   additional_notes: string
+  supplemental_links: SupplementalLink[]
 }
 
 function StepIdentity({
-  values, onChange, onNext, lookupLoading, lookupError
+  values, onChange, onLinksChange, onEmailBlur, onNext, lookupLoading, lookupError
 }: {
   values: IdentityFields
-  onChange: (k: keyof IdentityFields, v: string) => void
+  onChange: (k: Exclude<keyof IdentityFields, 'supplemental_links'>, v: string) => void
+  onLinksChange: (links: SupplementalLink[]) => void
+  onEmailBlur: () => void
   onNext: () => void
   lookupLoading: boolean
   lookupError: string | null
@@ -81,6 +142,7 @@ function StepIdentity({
           className={inputClass}
           placeholder="researcher@university.edu"
           value={values.email}
+          onBlur={onEmailBlur}
           onChange={e => onChange('email', e.target.value)}
         />
         {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
@@ -189,6 +251,11 @@ function StepIdentity({
           onChange={e => onChange('additional_notes', e.target.value)}
         />
       </Field>
+
+      <SupplementalLinksField
+        links={values.supplemental_links}
+        onChange={onLinksChange}
+      />
 
       <div className="flex justify-end pt-2">
         <button
@@ -625,7 +692,8 @@ const defaultIdentity = {
   email: '', full_name: '', institution: '', department_or_lab: '',
   role_career_stage: '' as CareerStage | '',
   field_and_subfield: '', plain_language_research_description: '',
-  ai_comfort: '' as AiComfort | '', additional_notes: ''
+  ai_comfort: '' as AiComfort | '', additional_notes: '',
+  supplemental_links: [] as SupplementalLink[],
 }
 
 export function IntakeForm() {
@@ -663,6 +731,7 @@ export function IntakeForm() {
               r.plain_language_research_description ?? prev.plain_language_research_description,
             ai_comfort: r.ai_comfort ?? prev.ai_comfort,
             additional_notes: r.additional_notes ?? prev.additional_notes,
+            supplemental_links: r.supplemental_links ?? prev.supplemental_links,
           }))
           setLookupError('Existing researcher found — fields pre-filled. Review before submitting.')
         }
@@ -671,8 +740,11 @@ export function IntakeForm() {
     setLookupLoading(false)
   }
 
-  const updateIdentity = (k: keyof typeof defaultIdentity, v: string) =>
+  const updateIdentity = (k: Exclude<keyof typeof defaultIdentity, 'supplemental_links'>, v: string) =>
     setIdentity(prev => ({ ...prev, [k]: v }))
+
+  const updateSupplementalLinks = (links: SupplementalLink[]) =>
+    setIdentity(prev => ({ ...prev, supplemental_links: links }))
 
   const updateOutputField = (k: string, v: unknown) =>
     setOutputFields(prev => ({ ...prev, [k]: v }))
@@ -716,6 +788,7 @@ export function IntakeForm() {
         plain_language_research_description: identity.plain_language_research_description,
         ai_comfort: identity.ai_comfort || null,
         additional_notes: identity.additional_notes,
+        supplemental_links: identity.supplemental_links,
       },
       artifact: {
         output_type: outputType,
@@ -774,6 +847,8 @@ export function IntakeForm() {
         <StepIdentity
           values={identity}
           onChange={updateIdentity}
+          onLinksChange={updateSupplementalLinks}
+          onEmailBlur={handleEmailBlur}
           onNext={() => setStep(2)}
           lookupLoading={lookupLoading}
           lookupError={lookupError}

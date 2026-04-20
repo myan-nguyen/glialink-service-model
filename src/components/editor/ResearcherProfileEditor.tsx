@@ -9,14 +9,17 @@ import type { ResearcherProfileV2Sections, EditDraft } from '@/lib/sections/prof
 
 import {
   V2Identity,
-  V2WorkStatement,
+  V2AboutAndProject,
   V2TrustStrip,
+  V2ResearchAreas,
+  V2CurrentFocus,
+  V2Keywords,
+  V2Expertise,
   V2WhatImOpenTo,
   V2WhatIBring,
   V2ActiveProjects,
   V2Perspective,
   V2Freshness,
-  V2ReachOut,
   V2PastProjects,
   V2SelectedPublications,
   V2TalksAndAppearances,
@@ -214,15 +217,25 @@ function SectionEditorWorkStatement({ content, onChange }: {
   content: Record<string, unknown>
   onChange: (c: Record<string, unknown>) => void
 }) {
-  const c = content as { paragraphs?: string[] }
+  const c = content as { subtitle?: string; paragraphs?: string[] }
   return (
-    <div>
-      <FieldLabel>Paragraphs</FieldLabel>
-      <ParagraphsEditor
-        paragraphs={c.paragraphs ?? ['']}
-        onChange={(v) => onChange({ ...c, paragraphs: v })}
-        placeholder="Describe your work…"
-      />
+    <div className="space-y-4">
+      <div>
+        <FieldLabel>Subtitle (italic tagline in About card)</FieldLabel>
+        <TextInput
+          value={c.subtitle ?? ''}
+          onChange={(v) => onChange({ ...c, subtitle: v || undefined })}
+          placeholder="e.g. How do neurons encode time?"
+        />
+      </div>
+      <div>
+        <FieldLabel>Paragraphs</FieldLabel>
+        <ParagraphsEditor
+          paragraphs={c.paragraphs ?? ['']}
+          onChange={(v) => onChange({ ...c, paragraphs: v })}
+          placeholder="Describe your work…"
+        />
+      </div>
     </div>
   )
 }
@@ -371,48 +384,239 @@ function SectionEditorActiveProjects({ content, onChange }: {
   content: Record<string, unknown>
   onChange: (c: Record<string, unknown>) => void
 }) {
-  const c = content as { projects?: Array<{ title: string; oneLine: string; url: string }> }
+  type ProjectLink = { label: string; url: string }
+  type Project = { title: string; oneLine: string; url: string; status?: 'active' | 'archived'; links?: ProjectLink[] }
+  const c = content as { projects?: Project[] }
   const projects = c.projects ?? []
-  const updateProject = (i: number, patch: Partial<typeof projects[0]>) => {
+
+  const updateProject = (i: number, patch: Partial<Project>) => {
     const next = [...projects]
     next[i] = { ...next[i], ...patch }
     onChange({ ...c, projects: next })
   }
-  const addProject = () => onChange({ ...c, projects: [...projects, { title: '', oneLine: '', url: '' }] })
+  const addProject = () => onChange({ ...c, projects: [...projects, { title: '', oneLine: '', url: '', links: [] }] })
   const removeProject = (i: number) => onChange({ ...c, projects: projects.filter((_, j) => j !== i) })
+
+  const updateLink = (pi: number, li: number, patch: Partial<ProjectLink>) => {
+    const proj = projects[pi]
+    const links = [...(proj.links ?? [])]
+    links[li] = { ...links[li], ...patch }
+    updateProject(pi, { links })
+  }
+  const addLink = (pi: number) => updateProject(pi, { links: [...(projects[pi].links ?? []), { label: '', url: '' }] })
+  const removeLink = (pi: number, li: number) => updateProject(pi, { links: (projects[pi].links ?? []).filter((_, j) => j !== li) })
 
   return (
     <div className="space-y-4">
-      {projects.map((p, i) => (
-        <div key={i} className="border border-neutral-200 rounded p-3 space-y-2">
-          <div className="flex justify-end">
-            <button
-              onClick={() => removeProject(i)}
-              className="text-xs text-neutral-300 hover:text-neutral-500 transition-colors"
+      <p className="text-[11px] text-neutral-400 leading-relaxed">
+        The <span className="font-semibold text-neutral-500">first project</span> is
+        featured in the &ldquo;A Selected Project&rdquo; card at the top of your profile.
+        Add more to build the full Selected Projects list below it.
+      </p>
+
+      {projects.length === 0 ? (
+        <button
+          onClick={addProject}
+          className="w-full border border-dashed border-neutral-200 rounded px-4 py-3
+                     text-xs text-neutral-400 hover:text-neutral-600 hover:border-neutral-300
+                     transition-colors text-left"
+        >
+          + Add your first project — it will appear in the featured card
+        </button>
+      ) : (
+        <>
+          {projects.map((p, i) => (
+            <div
+              key={i}
+              className={`border rounded p-3 space-y-2 ${
+                i === 0 ? 'border-brand/40 bg-brand-ghost' : 'border-neutral-200'
+              }`}
             >
-              Remove
-            </button>
-          </div>
-          <div>
-            <FieldLabel>Title</FieldLabel>
-            <TextInput value={p.title} onChange={(v) => updateProject(i, { title: v })} placeholder="Project title" />
-          </div>
-          <div>
-            <FieldLabel>One-line description</FieldLabel>
-            <TextInput value={p.oneLine} onChange={(v) => updateProject(i, { oneLine: v })} placeholder="One sentence" />
-          </div>
-          <div>
-            <FieldLabel>URL</FieldLabel>
-            <TextInput value={p.url} onChange={(v) => updateProject(i, { url: v })} placeholder="/p/your-project" />
-          </div>
-        </div>
-      ))}
-      <button
-        onClick={addProject}
-        className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
-      >
-        + Add project
-      </button>
+              <div className="flex items-center justify-between">
+                {i === 0 && (
+                  <span className="text-[10px] font-display font-semibold uppercase
+                                   tracking-wider text-brand-dark">
+                    Featured in card
+                  </span>
+                )}
+                <button
+                  onClick={() => removeProject(i)}
+                  className="text-xs text-neutral-300 hover:text-neutral-500 transition-colors ml-auto"
+                >
+                  Remove
+                </button>
+              </div>
+              <div>
+                <FieldLabel>Title</FieldLabel>
+                <TextInput value={p.title} onChange={(v) => updateProject(i, { title: v })} placeholder="Project title" />
+              </div>
+              <div>
+                <FieldLabel>One-line description</FieldLabel>
+                <TextInput value={p.oneLine} onChange={(v) => updateProject(i, { oneLine: v })} placeholder="One sentence" />
+              </div>
+              <div>
+                <FieldLabel>Status</FieldLabel>
+                <div className="flex gap-2">
+                  {(['active', 'archived'] as const).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => updateProject(i, { status: s })}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-serif border transition-colors ${
+                        (p.status ?? 'active') === s
+                          ? s === 'active'
+                            ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
+                            : 'border-red-400 bg-red-50 text-red-600'
+                          : 'border-neutral-200 text-neutral-400 hover:border-neutral-300'
+                      }`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        s === 'active' ? 'bg-emerald-500' : 'bg-red-400'
+                      }`} />
+                      {s === 'active' ? 'Active' : 'Archived'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Links */}
+              <div>
+                <FieldLabel>Links</FieldLabel>
+                <div className="space-y-2">
+                  {(p.links ?? []).map((link, li) => (
+                    <div key={li} className="border border-neutral-200 rounded p-2 space-y-1.5">
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => removeLink(i, li)}
+                          className="text-xs text-neutral-300 hover:text-neutral-500 transition-colors"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div>
+                        <FieldLabel>Label</FieldLabel>
+                        <TextInput value={link.label} onChange={(v) => updateLink(i, li, { label: v })} placeholder="e.g. Project page" />
+                      </div>
+                      <div>
+                        <FieldLabel>URL</FieldLabel>
+                        <TextInput value={link.url} onChange={(v) => updateLink(i, li, { url: v })} placeholder="https://…" />
+                      </div>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => addLink(i)}
+                    className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
+                  >
+                    + Add link
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+          <button
+            onClick={addProject}
+            className="text-xs text-neutral-400 hover:text-neutral-600 transition-colors"
+          >
+            + Add another project
+          </button>
+        </>
+      )}
+    </div>
+  )
+}
+
+function SectionEditorResearchAreas({ content, onChange }: {
+  content: Record<string, unknown>
+  onChange: (c: Record<string, unknown>) => void
+}) {
+  const c = content as { areas?: string[] }
+  return (
+    <div>
+      <FieldLabel>Areas (one per line)</FieldLabel>
+      <LineListEditor
+        items={c.areas ?? []}
+        onChange={(v) => onChange({ ...c, areas: v.filter(Boolean) })}
+        placeholder="e.g. Computational neuroscience"
+      />
+    </div>
+  )
+}
+
+function SectionEditorCurrentFocus({ content, onChange }: {
+  content: Record<string, unknown>
+  onChange: (c: Record<string, unknown>) => void
+}) {
+  const c = content as { headline?: string; details?: string }
+  return (
+    <div className="space-y-3">
+      <div>
+        <FieldLabel>Headline</FieldLabel>
+        <TextInput
+          value={c.headline ?? ''}
+          onChange={(v) => onChange({ ...c, headline: v })}
+          placeholder="What are you currently focused on?"
+        />
+      </div>
+      <div>
+        <FieldLabel>Details (optional)</FieldLabel>
+        <TextArea
+          value={c.details ?? ''}
+          onChange={(v) => onChange({ ...c, details: v })}
+          placeholder="More context…"
+          rows={2}
+        />
+      </div>
+    </div>
+  )
+}
+
+function SectionEditorKeywords({ content, onChange }: {
+  content: Record<string, unknown>
+  onChange: (c: Record<string, unknown>) => void
+}) {
+  const c = content as { keywords?: string[] }
+  return (
+    <div>
+      <FieldLabel>Keywords (one per line)</FieldLabel>
+      <LineListEditor
+        items={c.keywords ?? []}
+        onChange={(v) => onChange({ ...c, keywords: v.filter(Boolean) })}
+        placeholder="e.g. fMRI, deep learning, protein folding"
+      />
+    </div>
+  )
+}
+
+function SectionEditorExpertise({ content, onChange }: {
+  content: Record<string, unknown>
+  onChange: (c: Record<string, unknown>) => void
+}) {
+  const c = content as { skills?: string[]; domain?: string[]; methods?: string[] }
+  return (
+    <div className="space-y-4">
+      <div>
+        <FieldLabel>Skills (one per line)</FieldLabel>
+        <LineListEditor
+          items={c.skills ?? []}
+          onChange={(v) => onChange({ ...c, skills: v.filter(Boolean) })}
+          placeholder="e.g. Python, data analysis"
+        />
+      </div>
+      <div>
+        <FieldLabel>Domain (one per line)</FieldLabel>
+        <LineListEditor
+          items={c.domain ?? []}
+          onChange={(v) => onChange({ ...c, domain: v.filter(Boolean) })}
+          placeholder="e.g. Neuroscience, machine learning"
+        />
+      </div>
+      <div>
+        <FieldLabel>Methods (one per line)</FieldLabel>
+        <LineListEditor
+          items={c.methods ?? []}
+          onChange={(v) => onChange({ ...c, methods: v.filter(Boolean) })}
+          placeholder="e.g. fMRI, CRISPR, Bayesian inference"
+        />
+      </div>
     </div>
   )
 }
@@ -479,6 +683,10 @@ const SECTION_EDITORS: Record<string, React.ComponentType<{
 }>> = {
   identity:              SectionEditorIdentity,
   workStatement:         SectionEditorWorkStatement,
+  researchAreas:         SectionEditorResearchAreas,
+  currentFocus:          SectionEditorCurrentFocus,
+  keywords:              SectionEditorKeywords,
+  expertise:             SectionEditorExpertise,
   trustStrip:            SectionEditorTrustStrip,
   whatImOpenTo:          SectionEditorWhatImOpenTo,
   whatIBring:            SectionEditorWhatIBring,
@@ -556,7 +764,7 @@ function PreviewPanel({ slug, publishedSections }: {
   slug: string
   publishedSections: Record<string, unknown>
 }) {
-  const { getDraftSectionsForPreview, draft } = useProfileEditorStore()
+  const { getDraftSectionsForPreview, draft, updateSectionContent } = useProfileEditorStore()
   const previewSections = getDraftSectionsForPreview()
 
   const merged = { _v2: true, ...publishedSections, ...previewSections } as unknown as ResearcherProfileV2Sections
@@ -564,31 +772,78 @@ function PreviewPanel({ slug, publishedSections }: {
   const g = <T,>(key: keyof ResearcherProfileV2Sections) =>
     (merged[key] as { content: T } | undefined)?.content ?? null
 
+  const inDraft = (key: string) => draft.activeSections.includes(key)
+
   const identity       = g<Parameters<typeof V2Identity>[0]['content']>('identity')
-  const workStatement  = g<Parameters<typeof V2WorkStatement>[0]['content']>('workStatement')
+  const workStatement  = g<Parameters<typeof V2AboutAndProject>[0]['workStatement']>('workStatement')
   const freshness      = g<Parameters<typeof V2Freshness>[0]['content']>('freshness')
-  const trustStrip     = draft.activeSections.includes('trustStrip') ? g<Parameters<typeof V2TrustStrip>[0]['content']>('trustStrip') : null
-  const whatImOpenTo   = draft.activeSections.includes('whatImOpenTo') ? g<Parameters<typeof V2WhatImOpenTo>[0]['content']>('whatImOpenTo') : null
-  const whatIBring     = draft.activeSections.includes('whatIBring') ? g<Parameters<typeof V2WhatIBring>[0]['content']>('whatIBring') : null
-  const activeProjects = draft.activeSections.includes('activeProjects') ? g<Parameters<typeof V2ActiveProjects>[0]['content']>('activeProjects') : null
-  const perspective    = draft.activeSections.includes('perspective') ? g<Parameters<typeof V2Perspective>[0]['content']>('perspective') : null
-  const pastProjects   = draft.activeSections.includes('pastProjects') ? g<Parameters<typeof V2PastProjects>[0]['content']>('pastProjects') : null
-  const selectedPubs   = draft.activeSections.includes('selectedPublications') ? g<Parameters<typeof V2SelectedPublications>[0]['content']>('selectedPublications') : null
-  const talks          = draft.activeSections.includes('talksAndAppearances') ? g<Parameters<typeof V2TalksAndAppearances>[0]['content']>('talksAndAppearances') : null
-  const writing        = draft.activeSections.includes('writingAndMedia') ? g<Parameters<typeof V2WritingAndMedia>[0]['content']>('writingAndMedia') : null
-  const teaching       = draft.activeSections.includes('teachingAndMentorship') ? g<Parameters<typeof V2TeachingAndMentorship>[0]['content']>('teachingAndMentorship') : null
-  const background     = draft.activeSections.includes('background') ? g<Parameters<typeof V2Background>[0]['content']>('background') : null
-  const education      = draft.activeSections.includes('education') ? g<Parameters<typeof V2Education>[0]['content']>('education') : null
+  const researchAreas  = g<Parameters<typeof V2ResearchAreas>[0]['content']>('researchAreas')
+  const currentFocus   = g<Parameters<typeof V2CurrentFocus>[0]['content']>('currentFocus')
+  const keywords       = g<Parameters<typeof V2Keywords>[0]['content']>('keywords')
+  const expertise      = inDraft('expertise') ? g<Parameters<typeof V2Expertise>[0]['content']>('expertise') : null
+  const trustStrip     = inDraft('trustStrip') ? g<Parameters<typeof V2TrustStrip>[0]['content']>('trustStrip') : null
+  const whatImOpenTo   = inDraft('whatImOpenTo') ? g<Parameters<typeof V2WhatImOpenTo>[0]['content']>('whatImOpenTo') : null
+  const whatIBring     = inDraft('whatIBring') ? g<Parameters<typeof V2WhatIBring>[0]['content']>('whatIBring') : null
+  const activeProjects = inDraft('activeProjects') ? g<Parameters<typeof V2ActiveProjects>[0]['content']>('activeProjects') : null
+  const perspective    = inDraft('perspective') ? g<Parameters<typeof V2Perspective>[0]['content']>('perspective') : null
+  const pastProjects   = inDraft('pastProjects') ? g<Parameters<typeof V2PastProjects>[0]['content']>('pastProjects') : null
+  const selectedPubs   = inDraft('selectedPublications') ? g<Parameters<typeof V2SelectedPublications>[0]['content']>('selectedPublications') : null
+  const talks          = inDraft('talksAndAppearances') ? g<Parameters<typeof V2TalksAndAppearances>[0]['content']>('talksAndAppearances') : null
+  const writing        = inDraft('writingAndMedia') ? g<Parameters<typeof V2WritingAndMedia>[0]['content']>('writingAndMedia') : null
+  const teaching       = inDraft('teachingAndMentorship') ? g<Parameters<typeof V2TeachingAndMentorship>[0]['content']>('teachingAndMentorship') : null
+  const background     = inDraft('background') ? g<Parameters<typeof V2Background>[0]['content']>('background') : null
+  const education      = inDraft('education') ? g<Parameters<typeof V2Education>[0]['content']>('education') : null
+
+  const handleStatusChange = useCallback(
+    (index: number, status: 'active' | 'archived') => {
+      if (!activeProjects) return
+      const projects = activeProjects.projects.map((p, i) =>
+        i === index ? { ...p, status } : p
+      )
+      updateSectionContent('activeProjects', { ...activeProjects, projects })
+    },
+    [activeProjects, updateSectionContent]
+  )
+
+  const hasTwoColRow = whatImOpenTo || whatIBring
 
   return (
-    <div className="min-h-screen bg-surface-tint text-ink font-serif antialiased">
+    <div className="min-h-screen bg-white text-ink font-serif antialiased">
       {identity && <V2Identity content={identity} />}
       <div className="max-w-5xl mx-auto px-4 sm:px-8 py-6 space-y-4 pb-16">
-        {workStatement && <V2WorkStatement content={workStatement} />}
+        {workStatement && (
+          <V2AboutAndProject
+            workStatement={workStatement}
+            activeProjects={activeProjects}
+            onStatusChange={handleStatusChange}
+          />
+        )}
+        <div className="grid grid-cols-3 gap-4 items-stretch">
+          {researchAreas
+            ? <V2ResearchAreas content={researchAreas} />
+            : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />}
+          {currentFocus
+            ? <V2CurrentFocus content={currentFocus} />
+            : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />}
+          {keywords
+            ? <V2Keywords content={keywords} />
+            : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />}
+        </div>
+        {expertise && <V2Expertise content={expertise} />}
+        {hasTwoColRow && (
+          <div className="grid grid-cols-2 gap-4 items-stretch">
+            {whatImOpenTo
+              ? <V2WhatImOpenTo content={whatImOpenTo} slug={slug} />
+              : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />}
+            {whatIBring
+              ? <V2WhatIBring content={whatIBring} />
+              : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />}
+          </div>
+        )}
+        {activeProjects && (
+          <V2ActiveProjects content={activeProjects} onStatusChange={handleStatusChange} />
+        )}
         {trustStrip && <V2TrustStrip content={trustStrip} />}
-        {whatImOpenTo && <V2WhatImOpenTo content={whatImOpenTo} slug={slug} />}
-        {whatIBring && <V2WhatIBring content={whatIBring} />}
-        {activeProjects && <V2ActiveProjects content={activeProjects} />}
         {perspective && <V2Perspective content={perspective} />}
         {pastProjects && <V2PastProjects content={pastProjects} />}
         {selectedPubs && <V2SelectedPublications content={selectedPubs} />}
@@ -598,7 +853,6 @@ function PreviewPanel({ slug, publishedSections }: {
         {background && <V2Background content={background} />}
         {education && <V2Education content={education} />}
         {freshness && <V2Freshness content={freshness} />}
-        <V2ReachOut slug={slug} />
       </div>
     </div>
   )

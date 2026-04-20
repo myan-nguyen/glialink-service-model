@@ -15,14 +15,18 @@ function def(key: string, label: string, tier: SectionTier, emptyPrompt?: string
 export const SECTION_REGISTRY: Record<string, SectionDef> = {
   // Tier 1 — always render, cannot be removed
   identity:               def('identity',               'Identity',               1),
-  workStatement:          def('workStatement',          'Work Statement',         1),
+  workStatement:          def('workStatement',          'About',                  1),
   freshness:              def('freshness',              'Freshness',              1),
   reachOut:               def('reachOut',               'Reach Out',              1),
+  researchAreas:          def('researchAreas',          'Research Areas',         1, 'List your main research areas.'),
+  currentFocus:           def('currentFocus',           'Current Focus',          1, 'Describe what you are currently focused on.'),
+  keywords:               def('keywords',               'Keywords',               1, 'Add keywords that describe your work.'),
   // Tier 2 — default-shown, researcher can remove; publish only if content exists
-  trustStrip:             def('trustStrip',             'Trust Strip',            2, 'Add advisors, collaborators, funding, or linked papers.'),
-  whatImOpenTo:           def('whatImOpenTo',           "What I'm Open To",       2, "Add what you're open to — direct asks, open invitations, or exploratory notes."),
-  whatIBring:             def('whatIBring',             'What I Bring',           2, 'Describe your expertise and what you offer collaborators.'),
-  activeProjects:         def('activeProjects',         'Active Projects',        2, 'List your active projects with links.'),
+  expertise:              def('expertise',              'Expertise',              2, 'Add your skills, domain knowledge, and methods as tags.'),
+  trustStrip:             def('trustStrip',             'Affiliations',           2, 'Add advisors, collaborators, funding, or linked papers.'),
+  whatImOpenTo:           def('whatImOpenTo',           "What I'm Looking For",   2, "Add what you're looking for — direct asks, open invitations, or exploratory notes."),
+  whatIBring:             def('whatIBring',             'What I Offer',           2, 'Describe your expertise and what you offer collaborators.'),
+  activeProjects:         def('activeProjects',         'Selected Projects',      2, 'List your selected projects with links.'),
   perspective:            def('perspective',            'Perspective',            2, 'A quote and brief characterization.'),
   // Tier 3 — optional, not shown by default; researcher adds via "Add section"
   pastProjects:           def('pastProjects',           'Past Projects',          3, 'Completed projects.'),

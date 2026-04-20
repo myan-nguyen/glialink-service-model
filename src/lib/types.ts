@@ -25,6 +25,11 @@ export type TargetAudience =
   | 'General public'
   | 'Other'
 
+export interface SupplementalLink {
+  label: string
+  url: string
+}
+
 // Researcher record (identity-level)
 export interface Researcher {
   id: string
@@ -37,6 +42,7 @@ export interface Researcher {
   plain_language_research_description: string | null
   ai_comfort: AiComfort | null
   additional_notes: string | null
+  supplemental_links: SupplementalLink[]
   deleted_at: string | null
   created_at: string
   updated_at: string

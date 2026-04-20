@@ -49,7 +49,7 @@ export const SECTION_LABELS: Record<string, string> = {
   constraints: 'Constraints',
   // Researcher profile
   identity: 'Identity',
-  research_themes: 'Research Themes',
+  research_themes: 'Research Areas',
   current_focus: 'Current Focus',
   expertise: 'Expertise',
   selected_projects: 'Selected Projects',

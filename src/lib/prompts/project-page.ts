@@ -17,11 +17,18 @@ Voice rules (strictly enforced):
   "Early results suggest…"). Never passive third-person.
 - researcher_perspective.quote: a direct quote from the researcher's own words.
   researcher_perspective.context: one sentence, factual framing, no editorializing.
-- summary: one plain-language sentence — first-person or noun-phrase, never "[Name] is".
 - header fields (researcher_name, researcher_role, institution, department_or_lab,
-  project_title, project_type_label): factual identifiers only — not prose, no voice rule applies.
+  project_title, project_type_label): factual identifiers only, no voice rule applies.
 - Do not use "passionate", "innovative", "dedicated", or similar empty adjectives.
 - The page should feel like the researcher speaking directly, not a press release about them.
+- Never use em-dashes (—). Use commas, semicolons, or rewrite the sentence instead.
+
+Supplemental links:
+- If the intake includes supplemental_links (existing websites, publications, project pages,
+  portfolios), treat them as authoritative context about the researcher's existing work.
+- Reference them in relevant fields (e.g. asks, what_we_offer, researcher_perspective)
+  where they naturally support the content.
+- Do not invent URLs. Only use URLs explicitly provided in supplemental_links or the intake form.
 
 Asks rules:
 - Generate 1–3 asks based strictly on what the intake evidence supports.
@@ -48,14 +55,6 @@ Return this exact JSON structure:
       "department_or_lab": "string",
       "project_title": "string",
       "project_type_label": "string (e.g. 'Collaborative Research', 'Recruiting')"
-    },
-    "confidence": "high|medium|low",
-    "evidence": "string",
-    "follow_up_needed": "string|null"
-  },
-  "summary": {
-    "content": {
-      "one_sentence_summary": "string (plain language, one sentence, no jargon)"
     },
     "confidence": "high|medium|low",
     "evidence": "string",

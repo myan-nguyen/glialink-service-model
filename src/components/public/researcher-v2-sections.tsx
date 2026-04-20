@@ -11,6 +11,10 @@ import type {
   PerspectiveContent,
   GenericProseContent,
   GenericListContent,
+  ResearchAreasContent,
+  CurrentFocusContent,
+  KeywordsContent,
+  ExpertiseContent,
 } from '@/lib/sections/profile-types'
 
 // ─── Layout primitives ────────────────────────────────────────────────────────
@@ -49,44 +53,75 @@ function CardLabel({ children }: { children: React.ReactNode }) {
 // ─── Identity band (hero header, no card) ────────────────────────────────────
 
 export function V2Identity({ content }: { content: IdentityContent }) {
+  const initials = (content.name ?? '')
+    .split(' ')
+    .map((s: string) => s[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase()
+
   return (
     <section data-section-key="identity" className="w-full bg-brand-ghost pt-12 sm:pt-16 pb-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
-        <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
-                       leading-[1.05] tracking-tight">
-          {content.name}
-        </h1>
-        <p className="mt-4 text-base sm:text-lg font-serif text-ink-light leading-snug">
-          {content.role}
-          {content.institution && (
-            <span className="text-ink-subtle"> · {content.institution}</span>
-          )}
-          {content.group && (
-            <span className="text-ink-subtle"> · {content.group}</span>
-          )}
-        </p>
-        {content.fieldDescriptor && (
-          <p className="mt-2 text-base font-serif text-ink-muted">
-            {content.fieldDescriptor}
-          </p>
-        )}
-        {content.links && content.links.length > 0 && (
-          <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
-            {content.links.map((link, i) => (
-              <a
-                key={i}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-sm font-serif text-brand hover:text-brand-dark
-                           underline underline-offset-2 decoration-brand/30
-                           hover:decoration-brand transition-colors"
-              >
-                {link.label || link.url} ↗
-              </a>
-            ))}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-5 sm:gap-8 min-w-0">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white
+                            border border-surface-border flex items-center justify-center
+                            shrink-0 mt-1">
+              <span className="font-display text-xl sm:text-2xl font-bold text-brand">
+                {initials}
+              </span>
+            </div>
+            <div className="min-w-0">
+              <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
+                             leading-[1.05] tracking-tight">
+                {content.name}
+              </h1>
+              <p className="mt-4 text-base sm:text-lg font-serif text-ink-light leading-snug">
+                {content.role}
+                {content.institution && (
+                  <span className="text-ink-subtle"> · {content.institution}</span>
+                )}
+                {content.group && (
+                  <span className="text-ink-subtle"> · {content.group}</span>
+                )}
+              </p>
+              {content.fieldDescriptor && (
+                <p className="mt-2 text-base font-serif text-ink-muted">
+                  {content.fieldDescriptor}
+                </p>
+              )}
+              {content.links && content.links.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
+                  {content.links.map((link, i) => (
+                    <a
+                      key={i}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-serif text-brand hover:text-brand-dark
+                                 underline underline-offset-2 decoration-brand/30
+                                 hover:decoration-brand transition-colors"
+                    >
+                      {link.label || link.url} ↗
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
-        )}
+          <a
+            href="https://joinglialink.demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start shrink-0 sm:mt-1 px-4 py-2 text-sm font-serif font-medium
+                       bg-brand text-white rounded-lg hover:bg-brand-dark
+                       transition-colors whitespace-nowrap"
+          >
+            Join Glialink ↗
+          </a>
+        </div>
       </div>
     </section>
   )
@@ -106,6 +141,104 @@ export function V2WorkStatement({ content }: { content: WorkStatementContent }) 
         ))}
       </div>
     </Card>
+  )
+}
+
+// ─── About + selected project split layout ────────────────────────────────────
+
+export function V2AboutAndProject({
+  workStatement,
+  activeProjects,
+  onStatusChange,
+}: {
+  workStatement: WorkStatementContent
+  activeProjects: ActiveProjectsContent | null
+  onStatusChange?: (index: number, status: 'active' | 'archived') => void
+}) {
+  const firstProject = activeProjects?.projects?.[0] ?? null
+
+  return (
+    <div className="grid grid-cols-2 gap-4">
+      {/* About — scrollable when tall */}
+      <div
+        data-section-key="workStatement"
+        className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8
+                   flex flex-col h-72"
+      >
+        <CardLabel>About</CardLabel>
+        {workStatement.subtitle && (
+          <p className="font-serif italic text-xl text-ink leading-snug mb-4">
+            {workStatement.subtitle}
+          </p>
+        )}
+        <div className="flex-1 overflow-y-auto">
+          <div className="space-y-5">
+            {workStatement.paragraphs.map((p, i) => (
+              <p key={i} className="font-serif text-[1.05rem] leading-[1.65] text-ink-light">{p}</p>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Most recent project */}
+      <div
+        data-section-key="activeProjects"
+        className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8
+                   flex flex-col h-72"
+      >
+        {firstProject ? (
+          <>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-display font-semibold tracking-[0.18em] uppercase text-brand-dark">
+                A Selected Project
+              </p>
+              <div className="flex items-center gap-3">
+                <StatusDot
+                  status={firstProject.status}
+                  onToggle={onStatusChange
+                    ? () => onStatusChange(0, firstProject.status === 'archived' ? 'active' : 'archived')
+                    : undefined
+                  }
+                />
+                <button
+                  onClick={() =>
+                    document.getElementById('active-projects')?.scrollIntoView({ behavior: 'smooth' })
+                  }
+                  className="shrink-0 text-xs font-serif text-brand hover:text-brand-dark
+                             transition-colors"
+                >
+                  See more ↓
+                </button>
+              </div>
+            </div>
+            <a
+              href={firstProject.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-display font-semibold text-ink text-base leading-snug
+                         underline underline-offset-2 decoration-surface-border
+                         hover:decoration-ink transition-colors"
+            >
+              {firstProject.title} ↗
+            </a>
+            {firstProject.oneLine && (
+              <p className="mt-3 text-sm font-serif text-ink-muted leading-relaxed">
+                {firstProject.oneLine}
+              </p>
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col h-full">
+            <p className="text-xs font-display font-semibold tracking-[0.18em] uppercase text-brand-dark mb-4">
+              A Selected Project
+            </p>
+            <p className="text-sm font-serif text-ink-subtle italic">
+              No active projects added yet.
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -201,6 +334,20 @@ export function V2WhatImOpenTo({
     directAsks.length === 0 &&
     openInvitations.length === 0
 
+  const handleShare = async () => {
+    const url = window.location.href
+    if (navigator.share) {
+      try {
+        await navigator.share({ url })
+      } catch {
+        // user cancelled or share failed — fall through to clipboard
+        await navigator.clipboard.writeText(url).catch(() => {})
+      }
+    } else {
+      await navigator.clipboard.writeText(url).catch(() => {})
+    }
+  }
+
   const renderItem = (item: WhatImOpenToContent['items'][0], idx: number) => (
     <div key={idx} className="py-4 border-b border-surface-border last:border-0 last:pb-0 first:pt-0">
       <p className="font-serif text-[1.05rem] leading-[1.65] text-ink-light">
@@ -209,13 +356,13 @@ export function V2WhatImOpenTo({
       {(item.interestedLabel || item.forwardLabel) && (
         <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm font-serif text-brand">
           {item.interestedLabel && (
-            <a
-              href={slug ? `/p/${slug}#reach-out` : '#reach-out'}
+            <button
+              onClick={handleShare}
               className="underline underline-offset-2 decoration-brand/40
-                         hover:decoration-brand transition-colors"
+                         hover:decoration-brand transition-colors text-left"
             >
               {item.interestedLabel} ↗
-            </a>
+            </button>
           )}
           {item.forwardLabel && (
             <span className="text-ink-muted">{item.forwardLabel}</span>
@@ -227,7 +374,7 @@ export function V2WhatImOpenTo({
 
   return (
     <Card sectionKey="whatImOpenTo">
-      {!singleNoteOnly && <CardLabel>What I&apos;m Open To</CardLabel>}
+      {!singleNoteOnly && <CardLabel>What I&apos;m Looking For</CardLabel>}
       <div className="space-y-0">
         {directAsks.length > 0 && (
           <div className="mb-6">
@@ -269,7 +416,7 @@ export function V2WhatIBring({ content }: { content: WhatIBringContent }) {
   if (!content.paragraphs || content.paragraphs.length === 0) return null
   return (
     <Card sectionKey="whatIBring">
-      <CardLabel>What I Bring</CardLabel>
+      <CardLabel>What I Offer</CardLabel>
       <div className="space-y-4">
         {content.paragraphs.map((p, i) => (
           <p key={i} className="font-serif text-[1.05rem] leading-[1.65] text-ink-light">
@@ -283,32 +430,95 @@ export function V2WhatIBring({ content }: { content: WhatIBringContent }) {
 
 // ─── Active projects ──────────────────────────────────────────────────────────
 
-export function V2ActiveProjects({ content }: { content: ActiveProjectsContent }) {
+function StatusDot({
+  status,
+  onToggle,
+}: {
+  status?: 'active' | 'archived'
+  onToggle?: () => void
+}) {
+  const isArchived = status === 'archived'
+  const inner = (
+    <span className={`inline-flex items-center gap-1.5 text-[11px] font-serif ${
+      isArchived ? 'text-ink-subtle' : 'text-emerald-600'
+    } ${onToggle ? 'cursor-pointer hover:opacity-70 transition-opacity select-none' : ''}`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${
+        isArchived ? 'bg-red-400' : 'bg-emerald-500 animate-pulse'
+      }`} />
+      {isArchived ? 'Archived' : 'Active'}
+    </span>
+  )
+  if (onToggle) {
+    return (
+      <button
+        onClick={onToggle}
+        title="Click to toggle status"
+        className="focus:outline-none"
+      >
+        {inner}
+      </button>
+    )
+  }
+  return inner
+}
+
+export function V2ActiveProjects({
+  content,
+  onStatusChange,
+}: {
+  content: ActiveProjectsContent
+  onStatusChange?: (index: number, status: 'active' | 'archived') => void
+}) {
   if (!content.projects || content.projects.length === 0) return null
   return (
-    <Card sectionKey="activeProjects">
-      <CardLabel>Active Projects</CardLabel>
+    <Card sectionKey="activeProjects" id="active-projects">
+      <CardLabel>Selected Projects</CardLabel>
       <ul className="space-y-0">
-        {content.projects.map((p, i) => (
-          <li
-            key={i}
-            className="py-4 border-b border-surface-border last:border-0 last:pb-0 first:pt-0"
-          >
-            <a
-              href={p.url}
-              className="font-display font-semibold text-ink text-base
-                         underline underline-offset-2 decoration-surface-border
-                         hover:decoration-ink transition-colors"
+        {content.projects.map((p, i) => {
+          const allLinks = p.links && p.links.length > 0
+            ? p.links
+            : p.url && p.url !== '#' ? [{ label: p.title, url: p.url }] : []
+          return (
+            <li
+              key={i}
+              className="py-4 border-b border-surface-border last:border-0 last:pb-0 first:pt-0"
             >
-              {p.title} ↗
-            </a>
-            {p.oneLine && (
-              <p className="mt-1.5 text-sm font-serif text-ink-muted leading-relaxed">
-                {p.oneLine}
-              </p>
-            )}
-          </li>
-        ))}
+              <div className="flex items-start justify-between gap-3 mb-1">
+                <p className="font-display font-semibold text-ink text-base leading-snug">
+                  {p.title}
+                </p>
+                <StatusDot
+                  status={p.status}
+                  onToggle={onStatusChange
+                    ? () => onStatusChange(i, p.status === 'archived' ? 'active' : 'archived')
+                    : undefined
+                  }
+                />
+              </div>
+              {p.oneLine && (
+                <p className="mt-1.5 text-sm font-serif text-ink-muted leading-relaxed">
+                  {p.oneLine}
+                </p>
+              )}
+              {allLinks.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
+                  {allLinks.map((link, j) => (
+                    <a
+                      key={j}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-serif text-brand underline underline-offset-2
+                                 decoration-brand/40 hover:decoration-brand transition-colors"
+                    >
+                      {link.label} ↗
+                    </a>
+                  ))}
+                </div>
+              )}
+            </li>
+          )
+        })}
       </ul>
     </Card>
   )
@@ -449,6 +659,124 @@ export function V2ReachOut({ slug }: { slug: string }) {
           </button>
         </form>
       )}
+    </Card>
+  )
+}
+
+// ─── Research Areas ───────────────────────────────────────────────────────────
+
+export function V2ResearchAreas({ content }: { content: ResearchAreasContent }) {
+  if (!content.areas || content.areas.length === 0) return null
+  return (
+    <Card sectionKey="researchAreas" className="flex flex-col">
+      <CardLabel>Research Areas</CardLabel>
+      <ul className="space-y-1.5">
+        {content.areas.map((area, i) => (
+          <li key={i} className="text-sm font-serif text-ink-light leading-relaxed">
+            {area}
+          </li>
+        ))}
+      </ul>
+    </Card>
+  )
+}
+
+// ─── Current Focus ────────────────────────────────────────────────────────────
+
+export function V2CurrentFocus({ content }: { content: CurrentFocusContent }) {
+  if (!content.headline) return null
+  return (
+    <Card sectionKey="currentFocus" className="flex flex-col">
+      <CardLabel>Current Focus</CardLabel>
+      <p className="font-display font-semibold text-ink text-base leading-snug">
+        {content.headline}
+      </p>
+      {content.details && (
+        <p className="mt-3 text-sm font-serif text-ink-muted leading-relaxed">
+          {content.details}
+        </p>
+      )}
+    </Card>
+  )
+}
+
+// ─── Keywords ─────────────────────────────────────────────────────────────────
+
+export function V2Keywords({ content }: { content: KeywordsContent }) {
+  if (!content.keywords || content.keywords.length === 0) return null
+  return (
+    <Card sectionKey="keywords" className="flex flex-col">
+      <CardLabel>Keywords</CardLabel>
+      <div className="flex flex-wrap gap-2">
+        {content.keywords.map((kw, i) => (
+          <span
+            key={i}
+            className="inline-block border border-surface-border rounded-full px-3 py-1
+                       text-xs font-serif text-ink-muted"
+          >
+            {kw}
+          </span>
+        ))}
+      </div>
+    </Card>
+  )
+}
+
+// ─── Expertise ────────────────────────────────────────────────────────────────
+
+function TagPill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-block border border-surface-border rounded-lg px-3 py-1.5
+                     text-sm font-serif text-ink-muted">
+      {children}
+    </span>
+  )
+}
+
+export function V2Expertise({ content }: { content: ExpertiseContent }) {
+  const hasSkills  = content.skills  && content.skills.length  > 0
+  const hasDomain  = content.domain  && content.domain.length  > 0
+  const hasMethods = content.methods && content.methods.length > 0
+  if (!hasSkills && !hasDomain && !hasMethods) return null
+
+  return (
+    <Card sectionKey="expertise">
+      <CardLabel>Expertise</CardLabel>
+      <div className="space-y-5">
+        {hasSkills && (
+          <div>
+            <p className="text-[11px] font-display font-semibold uppercase tracking-widest
+                          text-ink-subtle mb-2">
+              Skills
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {content.skills!.map((s, i) => <TagPill key={i}>{s}</TagPill>)}
+            </div>
+          </div>
+        )}
+        {hasDomain && (
+          <div>
+            <p className="text-[11px] font-display font-semibold uppercase tracking-widest
+                          text-ink-subtle mb-2">
+              Domain
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {content.domain!.map((d, i) => <TagPill key={i}>{d}</TagPill>)}
+            </div>
+          </div>
+        )}
+        {hasMethods && (
+          <div>
+            <p className="text-[11px] font-display font-semibold uppercase tracking-widest
+                          text-ink-subtle mb-2">
+              Methods
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {content.methods!.map((m, i) => <TagPill key={i}>{m}</TagPill>)}
+            </div>
+          </div>
+        )}
+      </div>
     </Card>
   )
 }

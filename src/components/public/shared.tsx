@@ -43,7 +43,7 @@ export function WideSection({
 export function TileGrid({
   children,
   columns = 3,
-  tileHeight = 'h-72',
+  tileHeight = 'md:h-72',
 }: {
   children: React.ReactNode
   columns?: 2 | 3

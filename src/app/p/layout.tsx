@@ -4,7 +4,7 @@ export default function PublicLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen bg-canvas font-serif text-ink antialiased">
+    <div className="min-h-screen bg-white font-serif text-ink antialiased">
       {children}
     </div>
   )

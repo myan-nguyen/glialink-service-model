@@ -13,7 +13,7 @@ export function ShareBanner({ slug }: { slug: string }) {
   }
 
   return (
-    <div className="border-b border-canvas-border bg-canvas-soft">
+    <div className="border-b border-surface-border bg-surface-tint">
       <div className="w-full px-4 sm:px-8 py-2.5 flex items-center
                       justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
@@ -36,7 +36,7 @@ export function ShareBanner({ slug }: { slug: string }) {
         <button
           onClick={handleCopy}
           className="shrink-0 px-3 py-1.5 text-xs font-sans border
-                     border-canvas-border bg-canvas text-ink-muted
+                     border-surface-border bg-white text-ink-muted
                      rounded-full hover:border-brand hover:text-brand
                      transition-colors"
         >

@@ -14,6 +14,7 @@ import type {
   CareerStage,
   AiComfort,
   TargetAudience,
+  SupplementalLink,
 } from '@/lib/types'
 
 // ─── Shared field primitives (same as IntakeForm) ────────────────────────────
@@ -131,6 +132,64 @@ function ArtifactListItem({ artifact }: { artifact: ArtifactMeta }) {
   )
 }
 
+// ─── Supplemental links ──────────────────────────────────────────────────────
+
+function SupplementalLinksField({
+  links,
+  onChange,
+}: {
+  links: SupplementalLink[]
+  onChange: (links: SupplementalLink[]) => void
+}) {
+  const update = (i: number, patch: Partial<SupplementalLink>) => {
+    const next = [...links]
+    next[i] = { ...next[i], ...patch }
+    onChange(next)
+  }
+  const add = () => onChange([...links, { label: '', url: '' }])
+  const remove = (i: number) => onChange(links.filter((_, j) => j !== i))
+
+  return (
+    <Field
+      label="Supplemental links"
+      hint="Existing websites, publications, portfolios, or project links that Claude can use as context."
+    >
+      <div className="space-y-2">
+        {links.map((link, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            <input
+              className={inputClass + ' flex-1'}
+              placeholder="Label (e.g. Lab website)"
+              value={link.label}
+              onChange={(e) => update(i, { label: e.target.value })}
+            />
+            <input
+              className={inputClass + ' flex-[2]'}
+              placeholder="https://…"
+              value={link.url}
+              onChange={(e) => update(i, { url: e.target.value })}
+            />
+            <button
+              type="button"
+              onClick={() => remove(i)}
+              className="text-neutral-400 hover:text-neutral-700 text-xs px-1 transition-colors"
+            >
+              ✕
+            </button>
+          </div>
+        ))}
+        <button
+          type="button"
+          onClick={add}
+          className="text-xs text-neutral-500 hover:text-neutral-800 transition-colors"
+        >
+          + Add link
+        </button>
+      </div>
+    </Field>
+  )
+}
+
 // ─── Identity editor ─────────────────────────────────────────────────────────
 
 function IdentityEditor({
@@ -151,6 +210,9 @@ function IdentityEditor({
     ai_comfort: (researcher.ai_comfort ?? '') as AiComfort | '',
     additional_notes: researcher.additional_notes ?? '',
   })
+  const [supplementalLinks, setSupplementalLinks] = useState<SupplementalLink[]>(
+    researcher.supplemental_links ?? []
+  )
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState('')
@@ -170,7 +232,7 @@ function IdentityEditor({
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, supplemental_links: supplementalLinks }),
       }
     )
     setSaving(false)
@@ -263,6 +325,11 @@ function IdentityEditor({
           onChange={(e) => set('additional_notes', e.target.value)}
         />
       </Field>
+
+      <SupplementalLinksField
+        links={supplementalLinks}
+        onChange={setSupplementalLinks}
+      />
 
       {error && (
         <p className="text-xs text-red-500">{error}</p>

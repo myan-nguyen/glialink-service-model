@@ -54,10 +54,22 @@ export function LabHeader({ content }: { content: Record<string, string> }) {
   return (
     <section data-section-key="header" className="w-full bg-brand-ghost pt-12 sm:pt-16 pb-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
-        <p className="text-[11px] font-display font-semibold tracking-[0.18em]
-                      uppercase text-brand-dark mb-6">
-          Lab Profile
-        </p>
+        <div className="flex items-start justify-between gap-4 mb-6">
+          <p className="text-[11px] font-display font-semibold tracking-[0.18em]
+                        uppercase text-brand-dark">
+            Lab Profile
+          </p>
+          <a
+            href="https://joinglialink.demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 px-4 py-2 text-sm font-serif font-medium
+                       bg-brand text-white rounded-lg hover:bg-brand-dark
+                       transition-colors whitespace-nowrap"
+          >
+            Join Glialink ↗
+          </a>
+        </div>
         <div className="flex items-start gap-5 sm:gap-8">
           <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-white
                           border border-surface-border flex items-center justify-center
@@ -162,8 +174,8 @@ export function TileCapabilities({
     datasets_tools_infrastructure?: string[]
   }
 }) {
-  const hasMethods = content.methods_capabilities?.length
-  const hasInfra   = content.datasets_tools_infrastructure?.length
+  const hasMethods = !!content.methods_capabilities?.length
+  const hasInfra   = !!content.datasets_tools_infrastructure?.length
   if (!hasMethods && !hasInfra) return null
   return (
     <Card sectionKey="capabilities">
@@ -282,7 +294,7 @@ export function Opportunities({
           </span>
         </div>
       )}
-      {content.open_opportunities?.length && (
+      {!!content.open_opportunities?.length && (
         <ul className="space-y-0">
           {content.open_opportunities.map((opp, i) => (
             <li
@@ -340,9 +352,9 @@ export function TileProofVisibility({
     website_links?: string[]
   }
 }) {
-  const hasOutputs = content.selected_publications_or_outputs?.length
-  const hasLinks   = content.website_links?.length
-  const hasTags    = content.research_tags?.length
+  const hasOutputs = !!content.selected_publications_or_outputs?.length
+  const hasLinks   = !!content.website_links?.length
+  const hasTags    = !!content.research_tags?.length
   if (!hasOutputs && !hasLinks && !hasTags) return null
   return (
     <Card sectionKey="proof_visibility">

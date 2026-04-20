@@ -13,7 +13,7 @@ export function CustomSections({
         {sections.map((cs) => (
           <section
             key={cs.id}
-            className="bg-canvas-soft border border-canvas-border rounded-2xl
+            className="bg-surface-tint border border-surface-border rounded-2xl
                        p-6 sm:p-8"
           >
             {cs.title && (
@@ -37,7 +37,7 @@ export function CustomSections({
       {sections.map((cs) => (
         <section
           key={cs.id}
-          className="py-10 sm:py-12 border-b border-canvas-border"
+          className="py-10 sm:py-12 border-b border-surface-border"
         >
           {cs.title && (
             <p className="text-[11px] font-sans font-semibold tracking-[0.18em]

@@ -15,6 +15,7 @@ export interface InlineReference {
 }
 
 export interface WorkStatementContent {
+  subtitle?: string
   paragraphs: string[]
   inlineReferences?: InlineReference[]
 }
@@ -58,6 +59,27 @@ export interface ActiveProject {
   title: string
   oneLine: string
   url: string
+  status?: 'active' | 'archived'
+  links?: Array<{ label: string; url: string }>
+}
+
+export interface ResearchAreasContent {
+  areas: string[]
+}
+
+export interface CurrentFocusContent {
+  headline: string
+  details?: string
+}
+
+export interface KeywordsContent {
+  keywords: string[]
+}
+
+export interface ExpertiseContent {
+  skills?: string[]
+  domain?: string[]
+  methods?: string[]
 }
 
 export interface ActiveProjectsContent {
@@ -100,6 +122,10 @@ export interface ResearcherProfileV2Sections {
   workStatement?: V2SectionEntry<WorkStatementContent>
   freshness?: V2SectionEntry<FreshnessContent>
   trustStrip?: V2SectionEntry<TrustStripContent>
+  researchAreas?: V2SectionEntry<ResearchAreasContent>
+  currentFocus?: V2SectionEntry<CurrentFocusContent>
+  keywords?: V2SectionEntry<KeywordsContent>
+  expertise?: V2SectionEntry<ExpertiseContent>
   whatImOpenTo?: V2SectionEntry<WhatImOpenToContent>
   whatIBring?: V2SectionEntry<WhatIBringContent>
   activeProjects?: V2SectionEntry<ActiveProjectsContent>

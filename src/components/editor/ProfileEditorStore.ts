@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import type { EditDraft, V2SectionEntry } from '@/lib/sections/profile-types'
-import { TIER_2_KEYS } from '@/lib/sections/registry'
+import { TIER_1_KEYS, TIER_2_KEYS } from '@/lib/sections/registry'
 
 interface ProfileEditorState {
   // Current draft state
@@ -104,8 +104,11 @@ export const useProfileEditorStore = create<ProfileEditorState>((set, get) => ({
   getDraftSectionsForPreview: () => {
     const { draft } = get()
     const result: Record<string, V2SectionEntry> = {}
-    for (const key of draft.activeSections) {
-      if (draft.sections[key]) result[key] = draft.sections[key]
+    for (const [key, section] of Object.entries(draft.sections)) {
+      // Tier 1 sections are always included; Tier 2/3 only if active
+      if (TIER_1_KEYS.includes(key) || draft.activeSections.includes(key)) {
+        result[key] = section
+      }
     }
     return result
   },

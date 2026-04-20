@@ -38,18 +38,22 @@ export function PagePreview({ outputType }: { outputType: string }) {
     )
   }
 
+  const rawSections = sections as Record<string, unknown>
   const fakeArtifact = {
     output_type: outputType as Artifact['output_type'],
+    slug: '__preview__',
     sections: {
+      // Preserve meta flags (_v2, etc.) unchanged
       ...Object.fromEntries(
-        Object.entries(sections).map(([k, v]) => [
-          k,
-          { content: (v as SectionData).content },
-        ])
+        Object.entries(rawSections).filter(([k]) => k.startsWith('_'))
       ),
-      ...(customSections.length > 0
-        ? { custom_sections: customSections }
-        : {}),
+      // Map real sections to { content } shape
+      ...Object.fromEntries(
+        Object.entries(rawSections)
+          .filter(([k]) => !k.startsWith('_'))
+          .map(([k, v]) => [k, { content: (v as SectionData).content }])
+      ),
+      ...(customSections.length > 0 ? { custom_sections: customSections } : {}),
     },
   } as unknown as Artifact
 

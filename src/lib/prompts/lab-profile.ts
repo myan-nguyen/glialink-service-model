@@ -12,13 +12,21 @@ Rules:
 - Accuracy over completeness. Mark low-confidence sections clearly.
 - Use the researcher's own words wherever possible.
 - Do not hallucinate lab members, publications, or positions.
-- The lab profile should feel welcoming and specific — useful for recruitment
+- The lab profile should feel welcoming and specific, useful for recruitment
   and collaboration, not just informational.
 - Public-facing fields must not include anything_not_public content.
 - Write all public-facing prose in first person ("we", "our") or in a
-  noun-phrase style — never in third person. Never write "[Lab name] does" or
+  noun-phrase style, never in third person. Never write "[Lab name] does" or
   "[PI name] leads". Instead write "We study", "Our lab focuses on", or just
   "Cutting-edge infrastructure for…".
+- Never use em-dashes (—). Use commas, semicolons, or rewrite the sentence instead.
+
+Supplemental links:
+- If the intake includes supplemental_links (existing websites, publications, project pages,
+  portfolios), treat them as authoritative context about the lab's existing work.
+- Reference them in proof_visibility.website_links and
+  proof_visibility.selected_publications_or_outputs where they naturally fit.
+- Do not invent URLs. Only use URLs explicitly provided in supplemental_links or the intake form.
 
 Return this exact JSON structure:
 

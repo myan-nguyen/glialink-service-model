@@ -1,8 +1,4 @@
-const CTA_EMAIL = process.env.NEXT_PUBLIC_CTA_EMAIL ?? 'myan_nguyen@brown.edu'
-
 export function CTAFooter({ ctaText }: { ctaText?: string }) {
-  const subject = encodeURIComponent('Glialink — Research Collaboration Inquiry')
-
   return (
     <div className="mt-8 sm:mt-12">
       {/* CTA card */}
@@ -21,7 +17,9 @@ export function CTAFooter({ ctaText }: { ctaText?: string }) {
           with clear asks and active context.
         </p>
         <a
-          href={`mailto:${CTA_EMAIL}?subject=${subject}`}
+          href="https://joinglialink.demo"
+          target="_blank"
+          rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-6 sm:px-8 py-3
                      bg-brand hover:bg-brand-dark text-white font-sans
                      font-medium text-sm rounded-full

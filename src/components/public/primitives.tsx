@@ -14,7 +14,7 @@ export function SectionWrapper({
   return (
     <section
       id={id}
-      className={`py-10 sm:py-12 border-b border-canvas-border ${className}`}
+      className={`py-10 sm:py-12 border-b border-surface-border ${className}`}
     >
       {children}
     </section>
@@ -71,8 +71,8 @@ export function TagList({ tags }: { tags: string[] }) {
       {tags.map((tag) => (
         <span
           key={tag}
-          className="px-3 py-1 text-xs font-sans bg-brand-mist
-                     border border-canvas-border text-brand-deep rounded-full"
+          className="px-3 py-1 text-xs font-sans bg-brand-pale
+                     border border-surface-border text-brand-dark rounded-full"
         >
           {tag}
         </span>
@@ -128,7 +128,7 @@ export function InlineMeta({ items }: { items: (string | null | undefined)[] }) 
                     text-ink-muted font-sans">
       {filtered.map((item, i) => (
         <React.Fragment key={i}>
-          {i > 0 && <span className="text-ink-fade">·</span>}
+          {i > 0 && <span className="text-ink-subtle">·</span>}
           <span>{item}</span>
         </React.Fragment>
       ))}
@@ -138,14 +138,14 @@ export function InlineMeta({ items }: { items: (string | null | undefined)[] }) 
 
 export function StatusPill({ text }: { text: string }) {
   return (
-    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-mist
-                    border border-brand-soft/30 rounded-full">
+    <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-brand-pale
+                    border border-brand/30 rounded-full">
       <span className="relative flex h-2 w-2 shrink-0">
         <span className="animate-ping absolute inline-flex h-full w-full
                          rounded-full bg-brand opacity-50" />
         <span className="relative inline-flex rounded-full h-2 w-2 bg-brand" />
       </span>
-      <span className="text-xs font-sans font-medium text-brand-deep">
+      <span className="text-xs font-sans font-medium text-brand-dark">
         {text}
       </span>
     </div>

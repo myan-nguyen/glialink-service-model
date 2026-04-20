@@ -1,17 +1,12 @@
 import type { Metadata } from 'next'
-import { Playfair_Display, Source_Serif_4 } from 'next/font/google'
+import { Plus_Jakarta_Sans } from 'next/font/google'
 import './globals.css'
 
-const playfair = Playfair_Display({
+const plusJakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-})
-
-const sourceSerif = Source_Serif_4({
-  subsets: ['latin'],
-  variable: '--font-source-serif',
-  weight: ['300', '400', '600'],
+  variable: '--font-plus-jakarta',
+  weight: ['300', '400', '500', '600', '700', '800'],
+  style: ['normal', 'italic'],
   display: 'swap',
 })
 
@@ -26,8 +21,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${playfair.variable} ${sourceSerif.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={plusJakarta.variable} style={{ colorScheme: 'light' }}>
+      <body className="bg-white text-neutral-900">{children}</body>
     </html>
   )
 }

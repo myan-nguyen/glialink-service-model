@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
 import { waitUntil } from '@vercel/functions'
-import type { OutputType } from '@/lib/types'
+import Anthropic from '@anthropic-ai/sdk'
 import { createServiceClient } from '@/lib/supabase/service'
 import { anthropic, fetchUploadedFiles, parseGenerationResponse } from '@/lib/generation'
 import { PROJECT_PAGE_SYSTEM } from '@/lib/prompts/project-page'
 import { RESEARCHER_PROFILE_SYSTEM } from '@/lib/prompts/researcher-profile'
 import { LAB_PROFILE_SYSTEM } from '@/lib/prompts/lab-profile'
-import Anthropic from '@anthropic-ai/sdk'
+
+export const maxDuration = 60
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   project_page: PROJECT_PAGE_SYSTEM,
@@ -15,94 +15,46 @@ const SYSTEM_PROMPTS: Record<string, string> = {
   lab_profile: LAB_PROFILE_SYSTEM,
 }
 
-export const maxDuration = 60
-
-function validateIntake(
-  researcher: Record<string, unknown>,
-  artifact: { output_type: string; intake_data: Record<string, unknown> }
-): string | null {
-  if (!researcher.email) return 'Email is required'
-  if (!artifact.output_type) return 'Output type is required'
-  if (!researcher.full_name) return 'Full name is required'
-  if (!researcher.plain_language_research_description)
-    return 'Plain-language research description is required'
-  if (artifact.output_type === 'project_page') {
-    if (!artifact.intake_data.project_title) return 'Project title is required'
-    if (!artifact.intake_data.active_project_description)
-      return 'Active project description is required'
-  }
-  if (artifact.output_type === 'lab_profile') {
-    if (!artifact.intake_data.lab_name) return 'Lab name is required'
-  }
-  return null
-}
-
 export async function POST(request: NextRequest) {
-  const body = await request.json()
-  const { researcher, artifact } = body
+  const { artifact_id } = await request.json()
 
-  const validationError = validateIntake(researcher, artifact)
-  if (validationError) {
-    return NextResponse.json({ error: validationError }, { status: 422 })
+  if (!artifact_id) {
+    return NextResponse.json({ error: 'artifact_id is required' }, { status: 422 })
   }
 
-  const supabase = await createClient()
+  const supabase = createServiceClient()
 
-  const { error: upsertError } = await supabase
-    .from('researchers')
-    .upsert(
-      { ...researcher, updated_at: new Date().toISOString() },
-      { onConflict: 'email' }
-    )
-
-  if (upsertError) {
-    return NextResponse.json({ error: upsertError.message }, { status: 500 })
-  }
-
-  const { data: artifactRow, error: artifactError } = await supabase
+  const { data: artifact, error } = await supabase
     .from('artifacts')
-    .insert({
-      researcher_email: researcher.email,
-      output_type: artifact.output_type as OutputType,
-      intake_data: artifact.intake_data,
-      status: 'draft',
-      generation_status: 'pending',
-    })
-    .select()
+    .select('*, researchers(*)')
+    .eq('id', artifact_id)
     .single()
 
-  if (artifactError) {
-    if (artifactError.code === '23505') {
-      return NextResponse.json(
-        {
-          error: `A ${artifact.output_type.replace(/_/g, ' ')} already exists for this
-                  researcher. Delete or edit the existing one first.`
-        },
-        { status: 409 }
-      )
-    }
-    return NextResponse.json({ error: artifactError.message }, { status: 500 })
+  if (error || !artifact) {
+    return NextResponse.json({ error: 'Artifact not found' }, { status: 404 })
   }
-
-  waitUntil(triggerGeneration(artifactRow.id, researcher, artifact))
-
-  return NextResponse.json({ artifact_id: artifactRow.id }, { status: 201 })
-}
-
-async function triggerGeneration(
-  artifactId: string,
-  researcher: Record<string, unknown>,
-  artifact: { output_type: string; intake_data: Record<string, unknown> }
-) {
-  const supabase = createServiceClient()
 
   await supabase
     .from('artifacts')
-    .update({ generation_status: 'generating' })
-    .eq('id', artifactId)
+    .update({ generation_status: 'generating', generation_error: null })
+    .eq('id', artifact_id)
+
+  waitUntil(regenerate(artifact_id, artifact))
+
+  return NextResponse.json({ ok: true })
+}
+
+async function regenerate(
+  artifactId: string,
+  artifact: Record<string, unknown>
+) {
+  const supabase = createServiceClient()
 
   try {
-    const filePaths = (artifact.intake_data.file_uploads as string[]) ?? []
+    const researcher = artifact.researchers as Record<string, unknown>
+    const intakeData = artifact.intake_data as Record<string, unknown>
+
+    const filePaths = (intakeData.file_uploads as string[]) ?? []
     const fileBlocks = await fetchUploadedFiles(filePaths)
 
     const intakeJson: Record<string, unknown> = {
@@ -115,9 +67,13 @@ async function triggerGeneration(
       ai_comfort: researcher.ai_comfort,
       additional_notes: researcher.additional_notes,
       supplemental_links: researcher.supplemental_links ?? [],
-      ...artifact.intake_data,
+      ...intakeData,
     }
     delete intakeJson.file_uploads
+
+    const outputType = artifact.output_type as string
+    const systemPrompt = SYSTEM_PROMPTS[outputType]
+    if (!systemPrompt) throw new Error(`Unknown output type: ${outputType}`)
 
     const userContent: Anthropic.Messages.ContentBlockParam[] = [
       {
@@ -130,9 +86,6 @@ async function triggerGeneration(
         text: 'Generate the structured output JSON now. Return only valid JSON, nothing else.',
       },
     ]
-
-    const systemPrompt = SYSTEM_PROMPTS[artifact.output_type]
-    if (!systemPrompt) throw new Error(`Unknown output type: ${artifact.output_type}`)
 
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
@@ -168,13 +121,18 @@ async function triggerGeneration(
 
     const { page_readiness, ...sections } = parsed
     const sectionsToStore =
-      artifact.output_type === 'researcher_profile'
+      outputType === 'researcher_profile'
         ? { _v2: true, ...sections }
         : sections
 
     await supabase
       .from('artifacts')
-      .update({ sections: sectionsToStore, page_readiness: page_readiness ?? null, generation_status: 'complete', generation_error: null })
+      .update({
+        sections: sectionsToStore,
+        page_readiness: page_readiness ?? null,
+        generation_status: 'complete',
+        generation_error: null,
+      })
       .eq('id', artifactId)
 
   } catch (err) {

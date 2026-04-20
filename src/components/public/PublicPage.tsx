@@ -3,7 +3,6 @@ import { TileGrid, CustomSections } from './shared'
 import {
   ProjectHeader,
   CurrentStagePill,
-  ProjectSummary,
   WhyThisMatters,
   ResearchFocus,
   FiguresEvidence,
@@ -24,7 +23,6 @@ import {
   TileResearchThemes,
   TileCurrentFocus,
   TileDiscoverability,
-  TileSelectedOutputs,
   TileResearcherAsks,
   TileWhatTheyOffer,
 } from './researcher-sections'
@@ -77,23 +75,22 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
       <article>
         <ProjectHeader content={get(s, 'header')} />
         <CurrentStagePill content={get(s, 'current_stage')} />
-        <ProjectSummary content={get(s, 'summary')} />
-        <WhyThisMatters content={get(s, 'why_this_matters')} />
         <ResearchFocus content={get(s, 'research_focus')} />
 
-        <TileGrid columns={3} tileHeight="h-64">
+        <TileGrid columns={3} tileHeight="md:h-64">
           <TileResearchTags content={get(s, 'research_tags')} />
           <TileMethods content={get(s, 'methods_approach')} />
           <TilePotentialImpact content={get(s, 'potential_impact')} />
         </TileGrid>
 
-        <TileGrid columns={2} tileHeight="h-80">
+        <TileGrid columns={2} tileHeight="md:h-80">
           <TileKeyFindings content={get(s, 'key_findings')} />
           <TileWhatWeOffer content={get(s, 'what_we_offer')} />
         </TileGrid>
 
         <FiguresEvidence content={get(s, 'figures_evidence')} />
         <ProjectAsks content={get(s, 'asks')} />
+        <WhyThisMatters content={get(s, 'why_this_matters')} />
         <ResearcherPerspective content={get(s, 'researcher_perspective')} />
         <CustomSections sections={customSections} />
       </article>
@@ -117,7 +114,7 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
         <ResearcherHeader content={get(s, 'header')} links={headerLinks} />
         <ResearcherIdentity content={get(s, 'identity')} />
 
-        <TileGrid columns={3} tileHeight="h-64">
+        <TileGrid columns={3} tileHeight="md:h-64">
           <TileResearchThemes content={get(s, 'research_themes')} />
           <TileCurrentFocus content={get(s, 'current_focus')} />
           <TileDiscoverability content={get(s, 'discoverability')} />
@@ -126,8 +123,7 @@ export function PublicPage({ artifact }: { artifact: Artifact }) {
         <ExpertiseSection content={get(s, 'expertise')} />
         <SelectedProjects content={get(s, 'selected_projects')} />
 
-        <TileGrid columns={3} tileHeight="h-80">
-          <TileSelectedOutputs content={get(s, 'selected_outputs')} />
+        <TileGrid columns={2} tileHeight="md:h-80">
           <TileResearcherAsks content={get(s, 'asks')} />
           <TileWhatTheyOffer content={get(s, 'what_they_offer')} />
         </TileGrid>

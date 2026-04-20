@@ -5,9 +5,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        display: ['var(--font-playfair)', 'Georgia', 'serif'],
-        serif: ['var(--font-source-serif)', 'Georgia', 'serif'],
-        sans: ['var(--font-source-serif)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-plus-jakarta)', 'system-ui', 'sans-serif'],
+        serif: ['var(--font-plus-jakarta)', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-plus-jakarta)', 'system-ui', 'sans-serif'],
       },
       colors: {
         brand: {

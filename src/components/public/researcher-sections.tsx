@@ -30,60 +30,72 @@ export function ResearcherHeader({
   return (
     <section data-section-key="header" className="w-full bg-brand-ghost pt-12 sm:pt-16 pb-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
-        <div className="flex items-start gap-5 sm:gap-8">
-          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white
-                          border border-surface-border flex items-center justify-center
-                          shrink-0">
-            <span className="font-display text-2xl sm:text-3xl font-bold text-brand">
-              {initials}
-            </span>
-          </div>
-          <div className="min-w-0 flex-1 pt-1">
-            <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
-                           leading-[1.05] tracking-tight">
-              {content.researcher_name || 'Researcher'}
-            </h1>
-            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1
-                            text-base sm:text-lg font-serif text-ink-light">
-              {content.role_career_stage && (
-                <span className="font-semibold">{content.role_career_stage}</span>
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-start gap-5 sm:gap-8 min-w-0">
+            <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white
+                            border border-surface-border flex items-center justify-center
+                            shrink-0">
+              <span className="font-display text-2xl sm:text-3xl font-bold text-brand">
+                {initials}
+              </span>
+            </div>
+            <div className="min-w-0 flex-1 pt-1">
+              <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
+                             leading-[1.05] tracking-tight">
+                {content.researcher_name || 'Researcher'}
+              </h1>
+              <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1
+                              text-base sm:text-lg font-serif text-ink-light">
+                {content.role_career_stage && (
+                  <span className="font-semibold">{content.role_career_stage}</span>
+                )}
+                {content.institution && (
+                  <>
+                    {content.role_career_stage && <span className="text-ink-subtle">·</span>}
+                    <span>{content.institution}</span>
+                  </>
+                )}
+                {content.department_or_lab && (
+                  <>
+                    <span className="text-ink-subtle">·</span>
+                    <span className="text-ink-muted">{content.department_or_lab}</span>
+                  </>
+                )}
+              </div>
+              {content.field_and_subfield && (
+                <p className="mt-1.5 text-base font-serif text-ink-muted">
+                  {content.field_and_subfield}
+                </p>
               )}
-              {content.institution && (
-                <>
-                  {content.role_career_stage && <span className="text-ink-subtle">·</span>}
-                  <span>{content.institution}</span>
-                </>
-              )}
-              {content.department_or_lab && (
-                <>
-                  <span className="text-ink-subtle">·</span>
-                  <span className="text-ink-muted">{content.department_or_lab}</span>
-                </>
+              {links.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
+                  {links.map((url, i) => (
+                    <a
+                      key={i}
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm font-serif text-brand hover:text-brand-dark
+                                 underline underline-offset-2 decoration-brand/30
+                                 hover:decoration-brand transition-colors"
+                    >
+                      {url} ↗
+                    </a>
+                  ))}
+                </div>
               )}
             </div>
-            {content.field_and_subfield && (
-              <p className="mt-1.5 text-base font-serif text-ink-muted">
-                {content.field_and_subfield}
-              </p>
-            )}
-            {links.length > 0 && (
-              <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1">
-                {links.map((url, i) => (
-                  <a
-                    key={i}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm font-serif text-brand hover:text-brand-dark
-                               underline underline-offset-2 decoration-brand/30
-                               hover:decoration-brand transition-colors"
-                  >
-                    {url} ↗
-                  </a>
-                ))}
-              </div>
-            )}
           </div>
+          <a
+            href="https://joinglialink.demo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="self-start shrink-0 sm:mt-1 px-4 py-2 text-sm font-serif font-medium
+                       bg-brand text-white rounded-lg hover:bg-brand-dark
+                       transition-colors whitespace-nowrap"
+          >
+            Join Glialink ↗
+          </a>
         </div>
       </div>
     </section>
@@ -250,7 +262,7 @@ export function TileResearchThemes({
   if (!content.core_research_themes?.length) return null
   return (
     <Tile sectionKey="research_themes">
-      <SectionLabel>Research Themes</SectionLabel>
+      <SectionLabel>Research Areas</SectionLabel>
       <TagList tags={content.core_research_themes} accent />
     </Tile>
   )
