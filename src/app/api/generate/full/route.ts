@@ -109,20 +109,21 @@ async function doRegenerate(
     },
   ]
 
-  // Stream the response — keeps the Vercel function active with incoming data
-  // rather than holding a silent blocking connection for the full generation time.
-  // cache_control on system caches the large prompt across calls within 5 minutes.
   const cachedSystem: Anthropic.Messages.TextBlockParam[] = [
     { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
   ]
 
-  const stream = anthropic.messages.stream({
+  const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
     max_tokens: 4000,
     system: cachedSystem,
     messages: [{ role: 'user', content: userContent }],
   })
-  const rawText = await stream.finalText()
+
+  const rawText = response.content
+    .filter(b => b.type === 'text')
+    .map(b => (b as Anthropic.Messages.TextBlock).text)
+    .join('')
 
   let parsed: Record<string, unknown>
   try {
