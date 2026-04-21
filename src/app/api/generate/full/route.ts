@@ -8,8 +8,8 @@ import { RESEARCHER_PROFILE_SYSTEM } from '@/lib/prompts/researcher-profile'
 import { LAB_PROFILE_SYSTEM } from '@/lib/prompts/lab-profile'
 
 export const runtime = 'nodejs'
-export const maxDuration = 60
-const GENERATION_TIMEOUT_MS = 55_000
+export const maxDuration = 300
+const GENERATION_TIMEOUT_MS = 270_000
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   project_page: PROJECT_PAGE_SYSTEM,
@@ -98,7 +98,7 @@ async function doRegenerate(
   if (!systemPrompt) throw new Error(`Unknown output type: ${outputType}`)
 
   // project_page output is larger (15 sections + full content_hint paragraphs per suggestion)
-  const maxTokens = outputType === 'project_page' ? 8000 : 4000
+  const maxTokens = outputType === 'researcher_profile' ? 5000 : 8000
 
   const userContent: Anthropic.Messages.ContentBlockParam[] = [
     {
