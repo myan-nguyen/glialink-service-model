@@ -64,7 +64,7 @@ export function V2Identity({ content }: { content: IdentityContent }) {
   return (
     <section data-section-key="identity" className="w-full bg-brand-ghost pt-12 sm:pt-16 pb-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-5 sm:gap-8 min-w-0">
             <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white
                             border border-surface-border flex items-center justify-center
@@ -73,9 +73,9 @@ export function V2Identity({ content }: { content: IdentityContent }) {
                 {initials}
               </span>
             </div>
-            <div className="min-w-0">
-              <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
-                             leading-[1.05] tracking-tight">
+            <div className="min-w-0 flex-1">
+              <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
+                             leading-[1.05] tracking-tight break-words">
                 {content.name}
               </h1>
               <p className="mt-4 text-base sm:text-lg font-serif text-ink-light leading-snug">
@@ -102,7 +102,7 @@ export function V2Identity({ content }: { content: IdentityContent }) {
                       rel="noopener noreferrer"
                       className="text-sm font-serif text-brand hover:text-brand-dark
                                  underline underline-offset-2 decoration-brand/30
-                                 hover:decoration-brand transition-colors"
+                                 hover:decoration-brand transition-colors break-all"
                     >
                       {link.label || link.url} ↗
                     </a>
@@ -158,12 +158,12 @@ export function V2AboutAndProject({
   const firstProject = activeProjects?.projects?.[0] ?? null
 
   return (
-    <div className="grid grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       {/* About — scrollable when tall */}
       <div
         data-section-key="workStatement"
         className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8
-                   flex flex-col h-72"
+                   flex flex-col sm:h-72"
       >
         <CardLabel>About</CardLabel>
         {workStatement.subtitle && (
@@ -184,7 +184,7 @@ export function V2AboutAndProject({
       <div
         data-section-key="activeProjects"
         className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8
-                   flex flex-col h-72"
+                   flex flex-col sm:h-72"
       >
         {firstProject ? (
           <>

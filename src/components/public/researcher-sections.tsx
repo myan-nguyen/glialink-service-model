@@ -30,7 +30,7 @@ export function ResearcherHeader({
   return (
     <section data-section-key="header" className="w-full bg-brand-ghost pt-12 sm:pt-16 pb-10">
       <div className="max-w-5xl mx-auto px-4 sm:px-8">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-5 sm:gap-8 min-w-0">
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-white
                             border border-surface-border flex items-center justify-center
@@ -40,8 +40,8 @@ export function ResearcherHeader({
               </span>
             </div>
             <div className="min-w-0 flex-1 pt-1">
-              <h1 className="font-display text-4xl sm:text-5xl font-bold text-ink
-                             leading-[1.05] tracking-tight">
+              <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink
+                             leading-[1.05] tracking-tight break-words">
                 {content.researcher_name || 'Researcher'}
               </h1>
               <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1
@@ -77,7 +77,7 @@ export function ResearcherHeader({
                       rel="noopener noreferrer"
                       className="text-sm font-serif text-brand hover:text-brand-dark
                                  underline underline-offset-2 decoration-brand/30
-                                 hover:decoration-brand transition-colors"
+                                 hover:decoration-brand transition-colors break-all"
                     >
                       {url} ↗
                     </a>

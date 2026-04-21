@@ -88,7 +88,7 @@ export function ResearcherProfileV2Page({
         )}
 
         {/* Row 2: Research Areas / Current Focus / Keywords */}
-        <div className="grid grid-cols-3 gap-4 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-stretch">
           {researchAreas
             ? <V2ResearchAreas content={researchAreas} />
             : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />
@@ -108,7 +108,7 @@ export function ResearcherProfileV2Page({
 
         {/* Row 4: What I'm Looking For + What I Offer */}
         {hasTwoColRow && (
-          <div className="grid grid-cols-2 gap-4 items-stretch">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-stretch">
             {whatImOpenTo
               ? <V2WhatImOpenTo content={whatImOpenTo} slug={artifact.slug} />
               : <div className="bg-white border border-surface-border rounded-2xl p-6 sm:p-8" />
