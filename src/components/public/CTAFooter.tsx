@@ -17,7 +17,7 @@ export function CTAFooter({ ctaText }: { ctaText?: string }) {
           with clear asks and active context.
         </p>
         <a
-          href="https://joinglialink.demo"
+          href="https://www.joinglialink.com/"
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-2 px-6 sm:px-8 py-3

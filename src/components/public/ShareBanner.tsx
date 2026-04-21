@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export function ShareBanner({ slug }: { slug: string }) {
   const [copied, setCopied] = useState(false)
-  const url = `${process.env.NEXT_PUBLIC_APP_URL}/p/${slug}`
+  const url = `https://glialink-service-model.vercel.app/p/${slug}`
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(url)
@@ -17,17 +17,10 @@ export function ShareBanner({ slug }: { slug: string }) {
       <div className="w-full px-4 sm:px-8 py-2.5 flex items-center
                       justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <Link
-            href="/admin"
-            className="shrink-0 text-xs text-ink-muted font-sans
-                       hover:text-ink transition-colors"
-          >
-            ← Dashboard
-          </Link>
-          <span className="text-ink-subtle hidden sm:block">·</span>
           <span className="text-xs text-ink-muted font-sans shrink-0 hidden sm:block">
             Share this page
           </span>
+          <span className="text-ink-subtle hidden sm:block">·</span>
           <span className="text-xs text-ink-subtle font-mono truncate
                            hidden sm:block">
             {url}

@@ -87,7 +87,7 @@ export function ResearcherHeader({
             </div>
           </div>
           <a
-            href="https://joinglialink.demo"
+            href="https://www.joinglialink.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="self-start shrink-0 sm:mt-1 px-4 py-2 text-sm font-serif font-medium

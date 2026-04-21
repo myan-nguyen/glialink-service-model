@@ -60,7 +60,7 @@ export function LabHeader({ content }: { content: Record<string, string> }) {
             Lab Profile
           </p>
           <a
-            href="https://joinglialink.demo"
+            href="https://www.joinglialink.com/"
             target="_blank"
             rel="noopener noreferrer"
             className="shrink-0 px-4 py-2 text-sm font-serif font-medium
