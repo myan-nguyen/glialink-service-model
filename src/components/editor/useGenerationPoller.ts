@@ -5,7 +5,7 @@ export function useGenerationPoller(
   artifactId: string,
   initialStatus: string
 ) {
-  const { generationStatus, setGenerationStatus, initSections } = useEditorStore()
+  const { setGenerationStatus, initSections, setSectionSuggestions } = useEditorStore()
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
@@ -25,6 +25,7 @@ export function useGenerationPoller(
             'complete',
             null
           )
+          setSectionSuggestions(data.page_readiness?.section_suggestions ?? [])
           if (intervalRef.current) clearInterval(intervalRef.current)
         } else if (data.generation_status === 'failed') {
           setGenerationStatus('failed', data.generation_error)

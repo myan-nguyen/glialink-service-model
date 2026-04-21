@@ -36,6 +36,49 @@ Asks rules:
 - Do not pad with generic asks ("happy to chat") if specific ones are available.
 - If only one clear ask is supported by the materials, generate only one.
 
+Section suggestions rules:
+- Always suggest 3–5 sections in section_suggestions.
+- Pick from the categories below based on what the intake supports. Use the exact
+  section_key shown in parentheses.
+
+  VISIBILITY & CREDIBILITY (high priority):
+    press_coverage — media coverage, popular-press articles, podcast appearances
+    awards — prizes, grants, fellowships, recognition the project has received
+    talks_presentations — talks given about the project at conferences or events
+    in_the_news — recent news features or write-ups about the project
+
+  TECHNICAL DEPTH & REPRODUCIBILITY:
+    code_repository — GitHub link, license, installation notes, contributor guide
+    dataset_access — how to access data, data dictionary, access restrictions
+    replication_package — how to reproduce results, environment setup, notebooks
+    tools_we_built — software, libraries, or datasets released as part of this work
+    methodology — detailed methods, experimental design, statistical approach
+
+  CONTEXT & IMPACT:
+    why_now — why this problem is urgent or timely right now
+    impact_so_far — real-world outcomes, adoptions, citations, partnerships formed
+    policy_relevance — connections to policy, regulation, or real-world deployment
+    related_work — how this project fits into the broader literature or field
+
+  TRAJECTORY:
+    whats_next — next steps, upcoming experiments, planned extensions
+    open_questions — unresolved challenges or open problems in this project
+    early_access — how to get access, join a pilot, or collaborate on this work
+
+  HONEST SIGNALS:
+    lessons_learned — what the team learned, what surprised them, pivots made
+    what_failed — honest account of approaches that didn't work (builds credibility)
+
+  TEAM & FUNDING:
+    team — who is involved, roles, affiliations
+    funding — funding sources, grant numbers, acknowledgments
+    timeline — project phases, milestones, current stage
+
+- Always include if any evidence exists: press_coverage, code_repository,
+  dataset_access (if data is involved), impact_so_far.
+- Do not suggest sections already covered in the main generated output.
+- Ground every suggestion in the intake — only suggest what the evidence supports.
+
 Accuracy rules:
 - Accuracy over completeness. If a field cannot be filled confidently, mark
   confidence as "low" and explain in follow_up_needed.
@@ -187,7 +230,15 @@ Return this exact JSON structure:
     "is_ready_to_generate": true,
     "strongest_sections": ["string"],
     "weakest_sections": ["string"],
-    "missing_information_that_would_improve_page": ["string"]
+    "missing_information_that_would_improve_page": ["string"],
+    "section_suggestions": [
+      {
+        "section_key": "string (snake_case identifier — standard: code_repository, dataset_access, timeline, funding, related_work, team, publications; creative: replication_package, lessons_learned, early_access, what_failed, press_coverage, awards, impact_so_far, why_now, open_questions, tools_we_built, policy_relevance)",
+        "label": "string (human-readable section name)",
+        "reason": "string (one sentence: why this section would strengthen the project page, grounded in the intake evidence)",
+        "content_hint": "string (a fully drafted paragraph of actual content for this section, written in first person using the project's own details and intake evidence — this will be inserted directly into the section, so write it as real prose, not instructions)"
+      }
+    ]
   }
 }
 `.trim()

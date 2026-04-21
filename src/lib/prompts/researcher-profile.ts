@@ -48,6 +48,60 @@ Section rules:
   teachingAndMentorship, background, education): include ONLY if the intake
   explicitly mentions content for that section. Omit otherwise.
 
+Section suggestions rules:
+- Always suggest 3–5 sections in section_suggestions.
+- Prioritise high-value sections from the categories below — pick the ones best
+  supported by the intake. Use the exact section_key shown in parentheses.
+
+  VISIBILITY & CREDIBILITY (highest priority — suggest if any evidence exists):
+    awards_recognition — grants received, fellowships, named lectures, best-paper
+      awards, prizes, honors
+    talks_presentations — invited talks, keynotes, conference presentations with
+      venues and dates (distinct from informal appearances; use this instead of
+      or alongside talksAndAppearances when the intake mentions specific talks)
+    press_media — popular-press coverage, podcast appearances, op-eds, media features
+    in_the_news — recent mentions or news features about the researcher's work
+
+  WORK NOT EASILY CAPTURED ELSEWHERE:
+    patents — granted or pending patents, with status and licensing notes
+    open_source — GitHub repos, packages, datasets, tools published publicly
+    service — editorial boards, peer-review credits, conference committees,
+      professional service roles
+    teachingAndMentorship — courses taught, teaching philosophy, student outcomes
+      (standard Tier 3 key; always include if intake mentions teaching)
+
+  TRAJECTORY & CONTEXT:
+    education — degrees, advisors, dissertation title
+      (standard Tier 3 key; include if not already generated)
+    positions_held — career timeline, previous labs, sabbaticals, visiting roles
+    collaborators — labs and researchers they've worked with, cross-institution ties
+    mentees — current and former students/postdocs and where they've gone
+
+  FORWARD-LOOKING SIGNALS:
+    whats_next — projects or papers in the pipeline, next research directions
+    open_questions — problems they're actively puzzled by (invites collaboration)
+    reading_list — recent influences, field-shaping papers or books they recommend
+
+  PERSONAL & MOTIVATIONAL:
+    origin_story — what drew them to this field
+    values_working_style — how they run a lab, what they care about, working norms
+    beyond_research — hobbies, non-research interests (humanizing; useful for
+      prospective students)
+
+  PRACTICAL:
+    availability — sabbatical status, office hours, response-time norms
+    funding_status — open positions funded, grants actively recruiting against
+    location_mobility — willingness to travel, remote collaboration preferences
+
+- For the 4 highest-priority sections below, always include them if there is ANY
+  supporting evidence in the intake, even indirect:
+    awards_recognition, talks_presentations, service, teachingAndMentorship
+- Standard Tier 3 keys (pastProjects, selectedPublications, talksAndAppearances,
+  writingAndMedia, teachingAndMentorship, background, education) must use the exact
+  key name when suggesting them.
+- Do not suggest sections already generated in the main output.
+- Prefer specific, evidence-grounded suggestions over generic ones.
+
 For whatImOpenTo items, choose the type that best matches the stated intent:
   direct_ask   — concrete, specific request for help or collaboration
   open_invitation — standing offer open to many people
@@ -192,7 +246,15 @@ Return this exact JSON structure:
     "is_ready_to_generate": true,
     "strongest_sections": ["string"],
     "weakest_sections": ["string"],
-    "missing_information_that_would_improve_page": ["string"]
+    "missing_information_that_would_improve_page": ["string"],
+    "section_suggestions": [
+      {
+        "section_key": "string (standard: pastProjects, selectedPublications, talksAndAppearances, writingAndMedia, teachingAndMentorship, background, education — or creative free-form snake_case key like patents_ip, press_coverage, awards_recognition, open_questions, data_tools_built, why_this_problem, what_surprised_me, office_hours, resources_i_recommend, field_notes, consulting_practice, policy_work)",
+        "label": "string (human-readable section name)",
+        "reason": "string (one sentence: why this section would strengthen the profile, grounded in the intake evidence)",
+        "content_hint": "string (a fully drafted paragraph of actual content for this section, written in first person using the researcher's own words and intake evidence — this will be inserted directly into the section, so write it as real prose, not instructions)"
+      }
+    ]
   }
 }
 

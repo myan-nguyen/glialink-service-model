@@ -45,6 +45,8 @@ export default async function ResearcherProfileEditPage({
   const researcher = (artifact as Artifact & { researchers: Researcher }).researchers
   const researcherName = researcher?.full_name ?? artifact.researcher_email
 
+  const pageReadiness = (artifact as Artifact).page_readiness
+
   return (
     <ResearcherProfileEditor
       slug={slug}
@@ -52,6 +54,7 @@ export default async function ResearcherProfileEditPage({
       initialSections={publishedSections as Record<string, unknown>}
       initialDraft={_editDraft ?? null}
       researcherName={researcherName}
+      initialSuggestions={pageReadiness?.section_suggestions ?? []}
     />
   )
 }

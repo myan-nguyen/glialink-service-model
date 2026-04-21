@@ -38,6 +38,8 @@ export function DraftEditor({ artifact }: Props) {
       string,
       unknown
     >
+    // Reset all client-side state to avoid stale data from previous artifact
+    useEditorStore.setState({ customSections: [], sectionSuggestions: [], dismissedSuggestions: [] })
     initSections(
       mainSections as Record<string, SectionData>,
       artifact.generation_status,
@@ -45,14 +47,14 @@ export function DraftEditor({ artifact }: Props) {
     )
     if (Array.isArray(custom_sections)) {
       custom_sections.forEach((cs: { id: string; title: string; content: string }) => {
-        useEditorStore.getState().addCustomSection()
-        const added =
-          useEditorStore.getState().customSections[
-            useEditorStore.getState().customSections.length - 1
-          ]
-        useEditorStore.getState().updateCustomSection(added.id, 'title', cs.title)
-        useEditorStore.getState().updateCustomSection(added.id, 'content', cs.content)
+        useEditorStore.getState().addCustomSection(cs.title, cs.content)
       })
+    }
+    // Load suggestions for already-complete artifacts (poller only fires for in-progress ones)
+    if (artifact.generation_status === 'complete') {
+      useEditorStore.getState().setSectionSuggestions(
+        artifact.page_readiness?.section_suggestions ?? []
+      )
     }
   }, [artifact.id])
 

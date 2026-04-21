@@ -20,7 +20,22 @@ import {
   V2TeachingAndMentorship,
   V2Background,
   V2Education,
+  V2CreativeSection,
 } from './researcher-v2-sections'
+import { CustomSections } from './shared'
+
+const KNOWN_V2_KEYS = new Set([
+  '_v2', '_editDraft', 'identity', 'workStatement', 'freshness', 'trustStrip',
+  'researchAreas', 'currentFocus', 'keywords', 'expertise', 'whatImOpenTo',
+  'whatIBring', 'activeProjects', 'perspective', 'pastProjects',
+  'selectedPublications', 'talksAndAppearances', 'writingAndMedia',
+  'teachingAndMentorship', 'background', 'education', 'reachOut', 'discoverability',
+  'custom_sections',
+])
+
+function humanizeKey(key: string): string {
+  return key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+}
 
 function get<T>(
   sections: ResearcherProfileV2Sections,
@@ -122,6 +137,28 @@ export function ResearcherProfileV2Page({
         {teaching && <V2TeachingAndMentorship content={teaching} />}
         {background && <V2Background content={background} />}
         {education && <V2Education content={education} />}
+
+        {/* Creative / custom sections added via suggestions */}
+        {Object.entries(s as unknown as Record<string, { content: Record<string, unknown> }>)
+          .filter(([key]) => !KNOWN_V2_KEYS.has(key))
+          .map(([key, entry]) => {
+            const c = entry?.content as { paragraphs?: string[]; _sectionLabel?: string } | undefined
+            if (!c?.paragraphs?.length) return null
+            const label = c._sectionLabel ?? humanizeKey(key)
+            return (
+              <V2CreativeSection
+                key={key}
+                label={label}
+                content={{ paragraphs: c.paragraphs }}
+                sectionKey={key}
+              />
+            )
+          })}
+
+        {/* Custom sections from DraftEditor (array format) */}
+        <CustomSections
+          sections={((s as unknown as Record<string, unknown>).custom_sections as Array<{ id: string; title: string; content: string }>) ?? []}
+        />
 
         {freshness && <V2Freshness content={freshness} />}
       </div>

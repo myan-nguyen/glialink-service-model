@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { nanoid } from 'nanoid'
+import type { SectionSuggestion } from '@/lib/types'
 
 export interface SectionData {
   content: Record<string, unknown>
@@ -45,9 +46,15 @@ interface EditorState {
   setIsPublishing: (v: boolean) => void
 
   // Custom sections
-  addCustomSection: () => void
+  addCustomSection: (title?: string, content?: string) => void
   updateCustomSection: (id: string, field: 'title' | 'content', value: string) => void
   removeCustomSection: (id: string) => void
+
+  // Section suggestions
+  sectionSuggestions: SectionSuggestion[]
+  dismissedSuggestions: string[]
+  setSectionSuggestions: (suggestions: SectionSuggestion[]) => void
+  dismissSuggestion: (key: string) => void
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -59,18 +66,24 @@ export const useEditorStore = create<EditorState>((set) => ({
   isDirty: false,
   isSaving: false,
   isPublishing: false,
+  sectionSuggestions: [],
+  dismissedSuggestions: [],
 
   initSections: (sections, status, error) => {
+    // Strip custom_sections — it is an array, not SectionData; it lives in customSections state
+    const { custom_sections: _stripped, ...rest } = sections as Record<string, unknown>
+    const clean = rest as Record<string, SectionData>
+
     // Migrate old flat asks format { ask_title, ask_description, best_fit_people }
     // to the new items-array format { items: [...] }
-    const migrated = { ...sections }
+    const migrated = { ...clean }
     const asksContent = migrated.asks?.content as Record<string, unknown> | undefined
     if (asksContent && !Array.isArray(asksContent.items)) {
-      const { ask_title, ask_description, best_fit_people, ...rest } = asksContent
+      const { ask_title, ask_description, best_fit_people, ...restAsks } = asksContent
       migrated.asks = {
         ...migrated.asks!,
         content: {
-          ...rest,
+          ...restAsks,
           items: [{ ask_title: ask_title ?? '', ask_description: ask_description ?? '', best_fit_people: best_fit_people ?? '' }],
         },
       }
@@ -112,12 +125,12 @@ export const useEditorStore = create<EditorState>((set) => ({
   setIsSaving: (v) => set({ isSaving: v }),
   setIsPublishing: (v) => set({ isPublishing: v }),
 
-  addCustomSection: () =>
+  addCustomSection: (title = '', content = '') =>
     set((state) => ({
       isDirty: true,
       customSections: [
         ...state.customSections,
-        { id: nanoid(), title: '', content: '' },
+        { id: nanoid(), title, content },
       ],
     })),
 
@@ -134,4 +147,8 @@ export const useEditorStore = create<EditorState>((set) => ({
       isDirty: true,
       customSections: state.customSections.filter((s) => s.id !== id),
     })),
+
+  setSectionSuggestions: (suggestions) => set({ sectionSuggestions: suggestions }),
+  dismissSuggestion: (key) =>
+    set((state) => ({ dismissedSuggestions: [...state.dismissedSuggestions, key] })),
 }))

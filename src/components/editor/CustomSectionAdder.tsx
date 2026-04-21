@@ -51,7 +51,7 @@ export function CustomSectionAdder() {
         )}
 
         <button
-          onClick={addCustomSection}
+          onClick={() => addCustomSection()}
           className="px-3 py-1.5 text-xs border border-neutral-300 text-neutral-500
                      rounded-lg hover:border-neutral-500 hover:text-neutral-900
                      transition-colors"

@@ -37,6 +37,9 @@ export function SectionPanel({
     addCustomSection,
     updateCustomSection,
     removeCustomSection,
+    sectionSuggestions,
+    dismissedSuggestions,
+    dismissSuggestion,
   } = useEditorStore()
 
   const sections = useEditorStore(useShallow((state) => state.sections))
@@ -46,6 +49,7 @@ export function SectionPanel({
   const [regeneratingSection, setRegeneratingSection] = useState<string | null>(null)
   const [evidenceOpen, setEvidenceOpen] = useState(false)
   const [customOpen, setCustomOpen] = useState(false)
+  const [suggestionsOpen, setSuggestionsOpen] = useState(true)
 
   const sectionOrder = SECTION_ORDER[outputType] ?? Object.keys(sections)
   const orderedSections = sectionOrder.filter((key) => key in sections)
@@ -220,6 +224,65 @@ export function SectionPanel({
 
       {/* Fixed footer */}
       <div className="flex-shrink-0 border-t border-neutral-200">
+
+        {/* Suggested sections */}
+        {(() => {
+          const visible = sectionSuggestions.filter(
+            (s) => !dismissedSuggestions.includes(s.section_key)
+          )
+          if (visible.length === 0) return null
+          return (
+            <div className="border-b border-neutral-200 px-4 py-3 space-y-2">
+              <button
+                onClick={() => setSuggestionsOpen((o) => !o)}
+                className="w-full flex items-center justify-between text-[11px]
+                           text-neutral-400 hover:text-neutral-600 transition-colors"
+              >
+                <span>💡 Suggested additions ({visible.length})</span>
+                <span>{suggestionsOpen ? '▾' : '▸'}</span>
+              </button>
+              {suggestionsOpen && (
+                <div className="max-h-72 overflow-y-auto space-y-2">
+                  {visible.map((s) => (
+                    <div
+                      key={s.section_key}
+                      className="border border-neutral-200 rounded-lg p-2.5 space-y-1.5 bg-neutral-50"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="text-xs font-medium text-neutral-700">{s.label}</p>
+                        <button
+                          onClick={() => dismissSuggestion(s.section_key)}
+                          className="text-neutral-300 hover:text-neutral-500 transition-colors shrink-0 text-sm leading-none"
+                          aria-label="Dismiss"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-neutral-500 leading-relaxed">{s.reason}</p>
+                      {s.content_hint && (
+                        <p className="text-[11px] text-neutral-600 leading-relaxed border-l-2 border-neutral-200 pl-2">
+                          {s.content_hint}
+                        </p>
+                      )}
+                      <button
+                        onClick={() => {
+                          addCustomSection(s.label, s.content_hint ?? '')
+                          dismissSuggestion(s.section_key)
+                          setCustomOpen(true)
+                        }}
+                        className="text-[11px] border border-neutral-300 text-neutral-500 rounded
+                                   px-2.5 py-1 hover:border-neutral-500 hover:text-neutral-700
+                                   transition-colors"
+                      >
+                        + Add as custom section
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Custom sections — shown when open or when any exist */}
         {(customOpen || customSections.length > 0) && (

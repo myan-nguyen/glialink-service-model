@@ -48,10 +48,13 @@ export async function POST(request: NextRequest) {
 
   const supabase = await createClient()
 
+  // supplemental_links belongs to the artifact, not the researcher row
+  const { supplemental_links, ...researcherRow } = researcher as Record<string, unknown> & { supplemental_links?: unknown }
+
   const { error: upsertError } = await supabase
     .from('researchers')
     .upsert(
-      { ...researcher, updated_at: new Date().toISOString() },
+      { ...researcherRow, updated_at: new Date().toISOString() },
       { onConflict: 'email' }
     )
 
@@ -59,12 +62,17 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: upsertError.message }, { status: 500 })
   }
 
+  const intakeDataWithLinks = {
+    ...artifact.intake_data,
+    ...(supplemental_links !== undefined ? { supplemental_links } : {}),
+  }
+
   const { data: artifactRow, error: artifactError } = await supabase
     .from('artifacts')
     .insert({
       researcher_email: researcher.email,
       output_type: artifact.output_type as OutputType,
-      intake_data: artifact.intake_data,
+      intake_data: intakeDataWithLinks,
       status: 'draft',
       generation_status: 'pending',
     })
@@ -84,7 +92,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: artifactError.message }, { status: 500 })
   }
 
-  waitUntil(triggerGeneration(artifactRow.id, researcher, artifact))
+  waitUntil(triggerGeneration(artifactRow.id, researcher, { ...artifact, intake_data: intakeDataWithLinks }))
 
   return NextResponse.json({ artifact_id: artifactRow.id }, { status: 201 })
 }
@@ -114,7 +122,7 @@ async function triggerGeneration(
       plain_language_research_description: researcher.plain_language_research_description,
       ai_comfort: researcher.ai_comfort,
       additional_notes: researcher.additional_notes,
-      supplemental_links: researcher.supplemental_links ?? [],
+      supplemental_links: artifact.intake_data.supplemental_links ?? [],
       ...artifact.intake_data,
     }
     delete intakeJson.file_uploads

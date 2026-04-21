@@ -1,12 +1,17 @@
 import { create } from 'zustand'
 import type { EditDraft, V2SectionEntry } from '@/lib/sections/profile-types'
 import { TIER_1_KEYS, TIER_2_KEYS } from '@/lib/sections/registry'
+import type { SectionSuggestion } from '@/lib/types'
 
 interface ProfileEditorState {
   // Current draft state
   draft: EditDraft
   // Which Tier 3 keys have been added by the researcher
   addedTier3: string[]
+
+  // Section suggestions from AI
+  sectionSuggestions: SectionSuggestion[]
+  dismissedSuggestions: string[]
 
   // UI
   isDirty: boolean
@@ -22,6 +27,8 @@ interface ProfileEditorState {
   updateSectionContent: (key: string, content: Record<string, unknown>) => void
   removeSection: (key: string) => void
   addTier3Section: (key: string) => void
+  setSectionSuggestions: (suggestions: SectionSuggestion[]) => void
+  dismissSuggestion: (key: string) => void
   setPreviewMode: (v: boolean) => void
   setIsDirty: (v: boolean) => void
   setIsSaving: (v: boolean) => void
@@ -32,6 +39,8 @@ interface ProfileEditorState {
 export const useProfileEditorStore = create<ProfileEditorState>((set, get) => ({
   draft: { activeSections: [...TIER_2_KEYS], sections: {} },
   addedTier3: [],
+  sectionSuggestions: [],
+  dismissedSuggestions: [],
   isDirty: false,
   isSaving: false,
   isPublishing: false,
@@ -96,6 +105,10 @@ export const useProfileEditorStore = create<ProfileEditorState>((set, get) => ({
       }
     }),
 
+  setSectionSuggestions: (suggestions) => set({ sectionSuggestions: suggestions }),
+  dismissSuggestion: (key) =>
+    set((state) => ({ dismissedSuggestions: [...state.dismissedSuggestions, key] })),
+
   setPreviewMode: (v) => set({ previewMode: v }),
   setIsDirty: (v) => set({ isDirty: v }),
   setIsSaving: (v) => set({ isSaving: v }),
@@ -105,10 +118,13 @@ export const useProfileEditorStore = create<ProfileEditorState>((set, get) => ({
     const { draft } = get()
     const result: Record<string, V2SectionEntry> = {}
     for (const [key, section] of Object.entries(draft.sections)) {
-      // Tier 1 sections are always included; Tier 2/3 only if active
       if (TIER_1_KEYS.includes(key) || draft.activeSections.includes(key)) {
         result[key] = section
       }
+    }
+    // Include active sections that have no content yet (newly added Tier 2/3)
+    for (const key of draft.activeSections) {
+      if (!result[key]) result[key] = { content: {} }
     }
     return result
   },

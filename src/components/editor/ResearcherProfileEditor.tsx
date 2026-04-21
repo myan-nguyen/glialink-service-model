@@ -1,9 +1,10 @@
 'use client'
-import { useEffect, useCallback } from 'react'
+import React, { useEffect, useCallback, useState } from 'react'
 import Link from 'next/link'
 import { useProfileEditorStore } from './ProfileEditorStore'
 import { SECTION_REGISTRY, TIER_1_KEYS, TIER_2_KEYS, TIER_3_KEYS } from '@/lib/sections/registry'
 import type { ResearcherProfileV2Sections, EditDraft } from '@/lib/sections/profile-types'
+import type { SectionSuggestion } from '@/lib/types'
 
 // ─── Preview (published view) ─────────────────────────────────────────────────
 
@@ -27,6 +28,7 @@ import {
   V2TeachingAndMentorship,
   V2Background,
   V2Education,
+  V2CreativeSection,
 } from '@/components/public/researcher-v2-sections'
 
 // ─── Field editors ────────────────────────────────────────────────────────────
@@ -715,7 +717,7 @@ function SectionBlock({
   const def = SECTION_REGISTRY[sectionKey]
   const { draft, updateSectionContent } = useProfileEditorStore()
   const content = draft.sections[sectionKey]?.content ?? {}
-  const EditorComponent = SECTION_EDITORS[sectionKey]
+  const EditorComponent = SECTION_EDITORS[sectionKey] ?? SectionEditorGenericProse
 
   const handleChange = useCallback(
     (c: Record<string, unknown>) => updateSectionContent(sectionKey, c),
@@ -729,7 +731,7 @@ function SectionBlock({
       <div className="flex items-start justify-between mb-4">
         <div>
           <p className="text-xs font-display font-semibold uppercase tracking-wider text-neutral-400">
-            {def?.label ?? sectionKey}
+            {def?.label ?? (content as { _sectionLabel?: string })._sectionLabel ?? sectionKey.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
           </p>
           {def?.tier === 1 && (
             <p className="text-[10px] text-neutral-300 mt-0.5">Required</p>
@@ -754,6 +756,21 @@ function SectionBlock({
       {isEmpty && def?.emptyPrompt && (
         <p className="mt-2 text-xs text-neutral-300 italic">{def.emptyPrompt}</p>
       )}
+    </div>
+  )
+}
+
+// ─── Empty section placeholder (preview only) ────────────────────────────────
+
+function EmptySectionPlaceholder({ label }: { label: string }) {
+  return (
+    <div className="bg-white border border-dashed border-surface-border rounded-2xl p-6 sm:p-8">
+      <p className="text-xs font-display font-semibold tracking-[0.18em] uppercase text-brand-dark mb-2">
+        {label}
+      </p>
+      <p className="text-sm font-serif text-ink-subtle italic">
+        Section added — fill in the editor to see it here.
+      </p>
     </div>
   )
 }
@@ -845,13 +862,25 @@ function PreviewPanel({ slug, publishedSections }: {
         )}
         {trustStrip && <V2TrustStrip content={trustStrip} />}
         {perspective && <V2Perspective content={perspective} />}
-        {pastProjects && <V2PastProjects content={pastProjects} />}
-        {selectedPubs && <V2SelectedPublications content={selectedPubs} />}
-        {talks && <V2TalksAndAppearances content={talks} />}
-        {writing && <V2WritingAndMedia content={writing} />}
-        {teaching && <V2TeachingAndMentorship content={teaching} />}
-        {background && <V2Background content={background} />}
-        {education && <V2Education content={education} />}
+        {inDraft('pastProjects') && (pastProjects ? <V2PastProjects content={pastProjects} /> : <EmptySectionPlaceholder label="Past Projects" />)}
+        {inDraft('selectedPublications') && (selectedPubs ? <V2SelectedPublications content={selectedPubs} /> : <EmptySectionPlaceholder label="Selected Publications" />)}
+        {inDraft('talksAndAppearances') && (talks ? <V2TalksAndAppearances content={talks} /> : <EmptySectionPlaceholder label="Talks & Appearances" />)}
+        {inDraft('writingAndMedia') && (writing ? <V2WritingAndMedia content={writing} /> : <EmptySectionPlaceholder label="Writing & Media" />)}
+        {inDraft('teachingAndMentorship') && (teaching ? <V2TeachingAndMentorship content={teaching} /> : <EmptySectionPlaceholder label="Teaching & Mentorship" />)}
+        {inDraft('background') && (background ? <V2Background content={background} /> : <EmptySectionPlaceholder label="Background" />)}
+        {inDraft('education') && (education ? <V2Education content={education} /> : <EmptySectionPlaceholder label="Education" />)}
+
+        {/* Creative / custom sections — any activeSections key not in the known registries */}
+        {draft.activeSections
+          .filter((key) => !TIER_1_KEYS.includes(key) && !TIER_2_KEYS.includes(key) && !TIER_3_KEYS.includes(key))
+          .map((key) => {
+            const c = previewSections[key]?.content as { paragraphs?: string[]; _sectionLabel?: string } | undefined
+            const label = c?._sectionLabel ?? key.replace(/_/g, ' ').replace(/\b\w/g, (ch) => ch.toUpperCase())
+            return c?.paragraphs?.length
+              ? <V2CreativeSection key={key} label={label} content={{ paragraphs: c.paragraphs }} sectionKey={key} />
+              : <EmptySectionPlaceholder key={key} label={label} />
+          })}
+
         {freshness && <V2Freshness content={freshness} />}
       </div>
     </div>
@@ -885,6 +914,92 @@ function AddSectionMenu() {
   )
 }
 
+// ─── Suggested sections panel ─────────────────────────────────────────────────
+
+const LIST_TIER3_KEYS = new Set(['selectedPublications', 'talksAndAppearances', 'writingAndMedia', 'education'])
+
+function SuggestedSectionsPanel() {
+  const [open, setOpen] = useState(true)
+  const {
+    draft,
+    sectionSuggestions,
+    dismissedSuggestions,
+    addTier3Section,
+    updateSectionContent,
+    dismissSuggestion,
+  } = useProfileEditorStore()
+
+  const visible = sectionSuggestions.filter(
+    (s) =>
+      !draft.activeSections.includes(s.section_key) &&
+      !dismissedSuggestions.includes(s.section_key)
+  )
+
+  if (visible.length === 0) return null
+
+  const handleAdd = (s: { section_key: string; label: string; content_hint: string }) => {
+    addTier3Section(s.section_key)
+    const text = s.content_hint ?? ''
+    if (text) {
+      const isListKey = LIST_TIER3_KEYS.has(s.section_key)
+      const content = isListKey
+        ? { items: [text], _sectionLabel: s.label }
+        : { paragraphs: [text], _sectionLabel: s.label }
+      updateSectionContent(s.section_key, content)
+    }
+    dismissSuggestion(s.section_key)
+  }
+
+  return (
+    <div className="border-t border-neutral-100 pt-6">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="w-full flex items-center justify-between text-xs text-neutral-400
+                   hover:text-neutral-600 transition-colors mb-3"
+      >
+        <span>💡 Suggested additions ({visible.length})</span>
+        <span>{open ? '▾' : '▸'}</span>
+      </button>
+      {open && (
+        <div className="max-h-80 overflow-y-auto space-y-3">
+          {visible.map((s) => (
+            <div
+              key={s.section_key}
+              className="border border-brand-soft/40 bg-brand-ghost rounded-lg p-3 space-y-1.5"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-xs font-display font-semibold text-brand-dark uppercase tracking-wider">
+                  {s.label}
+                </p>
+                <button
+                  onClick={() => dismissSuggestion(s.section_key)}
+                  className="text-neutral-300 hover:text-neutral-500 transition-colors shrink-0 text-sm leading-none"
+                  aria-label="Dismiss"
+                >
+                  ×
+                </button>
+              </div>
+              <p className="text-xs font-serif text-ink-muted leading-relaxed">{s.reason}</p>
+              {s.content_hint && (
+                <p className="text-[11px] font-serif text-ink-light leading-relaxed border-l-2 border-brand/20 pl-2">
+                  {s.content_hint}
+                </p>
+              )}
+              <button
+                onClick={() => handleAdd(s)}
+                className="mt-1 text-xs border border-brand/40 text-brand rounded px-3 py-1
+                           hover:bg-brand hover:text-white transition-colors"
+              >
+                + Add section
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main editor ──────────────────────────────────────────────────────────────
 
 interface Props {
@@ -893,6 +1008,7 @@ interface Props {
   initialSections: Record<string, unknown>
   initialDraft: EditDraft | null
   researcherName: string
+  initialSuggestions?: SectionSuggestion[]
 }
 
 export function ResearcherProfileEditor({
@@ -901,6 +1017,7 @@ export function ResearcherProfileEditor({
   initialSections,
   initialDraft,
   researcherName,
+  initialSuggestions,
 }: Props) {
   const {
     initFromSections,
@@ -914,10 +1031,12 @@ export function ResearcherProfileEditor({
     setIsPublishing,
     setIsDirty,
     removeSection,
+    setSectionSuggestions,
   } = useProfileEditorStore()
 
   useEffect(() => {
     initFromSections(initialSections, initialDraft)
+    setSectionSuggestions(initialSuggestions ?? [])
   }, [artifactId])
 
   const handleSave = async () => {
@@ -1017,11 +1136,12 @@ export function ResearcherProfileEditor({
           <SectionBlock
             key={key}
             sectionKey={key}
-            isRemovable={TIER_2_KEYS.includes(key)}
+            isRemovable={TIER_2_KEYS.includes(key) || (!TIER_1_KEYS.includes(key) && !TIER_2_KEYS.includes(key) && !TIER_3_KEYS.includes(key))}
             onRemove={() => removeSection(key)}
           />
         ))}
 
+        <SuggestedSectionsPanel />
         <AddSectionMenu />
       </div>
     </div>

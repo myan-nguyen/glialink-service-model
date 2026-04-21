@@ -860,3 +860,11 @@ export function V2Background({ content }: { content: GenericProseContent }) {
 export function V2Education({ content }: { content: GenericListContent }) {
   return <ListSection label="Education" content={content} sectionKey="education" />
 }
+
+export function V2CreativeSection({ label, content, sectionKey }: {
+  label: string
+  content: GenericProseContent
+  sectionKey: string
+}) {
+  return <ProseSection label={label} content={content} sectionKey={sectionKey} />
+}

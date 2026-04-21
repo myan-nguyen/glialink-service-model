@@ -30,6 +30,13 @@ export interface SupplementalLink {
   url: string
 }
 
+export interface SectionSuggestion {
+  section_key: string
+  label: string
+  reason: string
+  content_hint: string
+}
+
 // Researcher record (identity-level)
 export interface Researcher {
   id: string
@@ -108,6 +115,7 @@ export interface Artifact {
     strongest_sections: string[]
     weakest_sections: string[]
     missing_information_that_would_improve_page: string[]
+    section_suggestions?: SectionSuggestion[]
   } | null
   deleted_at: string | null
   created_at: string
