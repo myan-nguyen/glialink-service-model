@@ -810,6 +810,12 @@ export function IntakeForm() {
       return
     }
 
+    await fetch('/api/generate/full', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artifact_id: data.artifact_id }),
+    })
+
     // Redirect to draft editor
     router.push(`/admin/artifacts/${data.artifact_id}/edit`)
   }

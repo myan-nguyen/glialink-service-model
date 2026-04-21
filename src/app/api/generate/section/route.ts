@@ -10,13 +10,14 @@ import { PROJECT_PAGE_SYSTEM } from '@/lib/prompts/project-page'
 import { RESEARCHER_PROFILE_SYSTEM } from '@/lib/prompts/researcher-profile'
 import { LAB_PROFILE_SYSTEM } from '@/lib/prompts/lab-profile'
 
+export const runtime = 'nodejs'
+export const maxDuration = 60
+
 const SYSTEM_PROMPTS: Record<string, string> = {
   project_page: PROJECT_PAGE_SYSTEM,
   researcher_profile: RESEARCHER_PROFILE_SYSTEM,
   lab_profile: LAB_PROFILE_SYSTEM,
 }
-
-export const maxDuration = 60
 
 export async function POST(request: NextRequest) {
   const { artifact_id, section_name } = await request.json()
@@ -57,6 +58,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unknown output type' }, { status: 400 })
     }
 
+    const cachedSystem: Anthropic.Messages.TextBlockParam[] = [
+      { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
+    ]
+
     const userContent: Anthropic.Messages.ContentBlockParam[] = [
       {
         type: 'text',
@@ -72,7 +77,7 @@ export async function POST(request: NextRequest) {
     const response = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1000,
-      system: systemPrompt,
+      system: cachedSystem,
       messages: [{ role: 'user', content: userContent }],
     })
 

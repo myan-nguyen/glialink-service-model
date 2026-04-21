@@ -7,7 +7,9 @@ import { PROJECT_PAGE_SYSTEM } from '@/lib/prompts/project-page'
 import { RESEARCHER_PROFILE_SYSTEM } from '@/lib/prompts/researcher-profile'
 import { LAB_PROFILE_SYSTEM } from '@/lib/prompts/lab-profile'
 
+export const runtime = 'nodejs'
 export const maxDuration = 60
+const GENERATION_TIMEOUT_MS = 55_000
 
 const SYSTEM_PROMPTS: Record<string, string> = {
   project_page: PROJECT_PAGE_SYSTEM,
@@ -51,90 +53,12 @@ async function regenerate(
   const supabase = createServiceClient()
 
   try {
-    const researcher = artifact.researchers as Record<string, unknown>
-    const intakeData = artifact.intake_data as Record<string, unknown>
-
-    const filePaths = (intakeData.file_uploads as string[]) ?? []
-    const fileBlocks = await fetchUploadedFiles(filePaths)
-
-    const intakeJson: Record<string, unknown> = {
-      full_name: researcher.full_name,
-      institution: researcher.institution,
-      department_or_lab: researcher.department_or_lab,
-      role_career_stage: researcher.role_career_stage,
-      field_and_subfield: researcher.field_and_subfield,
-      plain_language_research_description: researcher.plain_language_research_description,
-      ai_comfort: researcher.ai_comfort,
-      additional_notes: researcher.additional_notes,
-      supplemental_links: researcher.supplemental_links ?? [],
-      ...intakeData,
-    }
-    delete intakeJson.file_uploads
-
-    const outputType = artifact.output_type as string
-    const systemPrompt = SYSTEM_PROMPTS[outputType]
-    if (!systemPrompt) throw new Error(`Unknown output type: ${outputType}`)
-
-    const userContent: Anthropic.Messages.ContentBlockParam[] = [
-      {
-        type: 'text',
-        text: `Here is the researcher's intake form:\n\n${JSON.stringify(intakeJson, null, 2)}`,
-      },
-      ...fileBlocks,
-      {
-        type: 'text',
-        text: 'Generate the structured output JSON now. Return only valid JSON, nothing else.',
-      },
-    ]
-
-    const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userContent }],
-    })
-
-    const rawText = response.content
-      .filter(b => b.type === 'text')
-      .map(b => (b as Anthropic.Messages.TextBlock).text)
-      .join('')
-
-    let parsed: Record<string, unknown>
-    try {
-      parsed = parseGenerationResponse(rawText)
-    } catch {
-      const retry = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: systemPrompt,
-        messages: [
-          { role: 'user', content: userContent },
-          { role: 'assistant', content: rawText },
-          { role: 'user', content: 'Return only valid JSON. No markdown, no backticks.' },
-        ],
-      })
-      parsed = parseGenerationResponse(
-        retry.content.filter(b => b.type === 'text')
-          .map(b => (b as Anthropic.Messages.TextBlock).text).join('')
-      )
-    }
-
-    const { page_readiness, ...sections } = parsed
-    const sectionsToStore =
-      outputType === 'researcher_profile'
-        ? { _v2: true, ...sections }
-        : sections
-
-    await supabase
-      .from('artifacts')
-      .update({
-        sections: sectionsToStore,
-        page_readiness: page_readiness ?? null,
-        generation_status: 'complete',
-        generation_error: null,
-      })
-      .eq('id', artifactId)
-
+    await Promise.race([
+      doRegenerate(artifactId, artifact, supabase),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Generation timed out')), GENERATION_TIMEOUT_MS)
+      ),
+    ])
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error'
     await supabase
@@ -142,4 +66,99 @@ async function regenerate(
       .update({ generation_status: 'failed', generation_error: message })
       .eq('id', artifactId)
   }
+}
+
+async function doRegenerate(
+  artifactId: string,
+  artifact: Record<string, unknown>,
+  supabase: ReturnType<typeof createServiceClient>
+) {
+  const researcher = artifact.researchers as Record<string, unknown>
+  const intakeData = artifact.intake_data as Record<string, unknown>
+
+  const filePaths = (intakeData.file_uploads as string[]) ?? []
+  const fileBlocks = await fetchUploadedFiles(filePaths)
+
+  const intakeJson: Record<string, unknown> = {
+    full_name: researcher.full_name,
+    institution: researcher.institution,
+    department_or_lab: researcher.department_or_lab,
+    role_career_stage: researcher.role_career_stage,
+    field_and_subfield: researcher.field_and_subfield,
+    plain_language_research_description: researcher.plain_language_research_description,
+    ai_comfort: researcher.ai_comfort,
+    additional_notes: researcher.additional_notes,
+    supplemental_links: researcher.supplemental_links ?? [],
+    ...intakeData,
+  }
+  delete intakeJson.file_uploads
+
+  const outputType = artifact.output_type as string
+  const systemPrompt = SYSTEM_PROMPTS[outputType]
+  if (!systemPrompt) throw new Error(`Unknown output type: ${outputType}`)
+
+  const userContent: Anthropic.Messages.ContentBlockParam[] = [
+    {
+      type: 'text',
+      text: `Here is the researcher's intake form:\n\n${JSON.stringify(intakeJson, null, 2)}`,
+    },
+    ...fileBlocks,
+    {
+      type: 'text',
+      text: 'Generate the structured output JSON now. Return only valid JSON, nothing else.',
+    },
+  ]
+
+  // Stream the response — keeps the Vercel function active with incoming data
+  // rather than holding a silent blocking connection for the full generation time.
+  // cache_control on system caches the large prompt across calls within 5 minutes.
+  const cachedSystem: Anthropic.Messages.TextBlockParam[] = [
+    { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
+  ]
+
+  const stream = anthropic.messages.stream({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 4000,
+    system: cachedSystem,
+    messages: [{ role: 'user', content: userContent }],
+  })
+  const rawText = await stream.finalText()
+
+  let parsed: Record<string, unknown>
+  try {
+    parsed = parseGenerationResponse(rawText)
+  } catch {
+    const retry = await anthropic.messages.create({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 4000,
+      system: cachedSystem,
+      messages: [
+        { role: 'user', content: userContent },
+        { role: 'assistant', content: rawText },
+        { role: 'user', content: 'Return only valid JSON. No markdown, no backticks.' },
+      ],
+    })
+    parsed = parseGenerationResponse(
+      retry.content
+        .filter(b => b.type === 'text')
+        .map(b => (b as Anthropic.Messages.TextBlock).text)
+        .join('')
+    )
+  }
+
+  const { page_readiness, ...sections } = parsed
+  const sectionsToStore =
+    outputType === 'researcher_profile'
+      ? { _v2: true, ...sections }
+      : sections
+
+  await supabase
+    .from('artifacts')
+    .update({
+      sections: sectionsToStore,
+      page_readiness: page_readiness ?? null,
+      generation_status: 'complete',
+      generation_error: null,
+    })
+    .eq('id', artifactId)
 }
