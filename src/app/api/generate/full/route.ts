@@ -97,6 +97,9 @@ async function doRegenerate(
   const systemPrompt = SYSTEM_PROMPTS[outputType]
   if (!systemPrompt) throw new Error(`Unknown output type: ${outputType}`)
 
+  // project_page output is larger (15 sections + full content_hint paragraphs per suggestion)
+  const maxTokens = outputType === 'project_page' ? 8000 : 4000
+
   const userContent: Anthropic.Messages.ContentBlockParam[] = [
     {
       type: 'text',
@@ -115,7 +118,7 @@ async function doRegenerate(
 
   const response = await anthropic.messages.create({
     model: 'claude-sonnet-4-6',
-    max_tokens: 4000,
+    max_tokens: maxTokens,
     system: cachedSystem,
     messages: [{ role: 'user', content: userContent }],
   })
@@ -131,7 +134,7 @@ async function doRegenerate(
   } catch {
     const retry = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 4000,
+      max_tokens: maxTokens,
       system: cachedSystem,
       messages: [
         { role: 'user', content: userContent },
